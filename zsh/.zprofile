@@ -3,14 +3,15 @@ export EDITOR=vim
 
 
 # import alias
-source ./.alias
+source ~/.zsh/.alias
+source ~/.zsh/.tools
 
 # nvm set up
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# set autojump
+# Set autojump
 [ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
 
 # iCal Buddy Set up - Calendar in Terminal
@@ -33,13 +34,3 @@ zstyle ':vcs_info:git:*' formats '(%b)'
 # Set up the prompt (with git branch name)
 setopt PROMPT_SUBST
 PROMPT='%n@[%1d] ${vcs_info_msg_0_} > '
-
-# Add Weather Functions
-function weather(){
-    curl wttr.in/$1
-}
-
-# Check my public ip
-function ipinfo(){
-    curl ipinfo.io/$1
-}

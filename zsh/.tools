@@ -1,0 +1,227 @@
+# ═══════════════════════════════════════════════════════════
+# Custom Functions & Tools
+# ═══════════════════════════════════════════════════════════
+
+# ---- Weather Information -----------------------------------------
+# Usage: weather [city]
+function weather() {
+    local city="${1:-}"
+    curl -s "wttr.in/${city}?format=3"
+}
+
+function weatherfull() {
+    local city="${1:-}"
+    curl "wttr.in/${city}"
+}
+
+# ---- IP Information ----------------------------------------------
+# Usage: ipinfo [ip-address]
+function ipinfo() {
+    curl "ipinfo.io/${1:-}"
+}
+
+function myip() {
+    echo "Public IP: $(curl -s ifconfig.me)"
+    if command -v ipconfig &> /dev/null; then
+        echo "Local IP:  $(ipconfig getifaddr en0 2>/dev/null || echo 'N/A')"
+    fi
+}
+
+# ---- UUID Generator ----------------------------------------------
+# Generate lowercase UUID
+function uuid() {
+    if command -v uuidgen &> /dev/null; then
+        uuidgen | tr '[:upper:]' '[:lower:]'
+    else
+        cat /proc/sys/kernel/random/uuid 2>/dev/null || python3 -c "import uuid; print(uuid.uuid4())"
+    fi
+}
+
+# ---- Date/Time Utilities -----------------------------------------
+# Convert days since epoch to human readable format
+function daysSinceEpoch() {
+    local days=$1
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        date -r $((days * 86400)) "+DATE: %Y-%m-%d"
+    else
+        date -d "@$((days * 86400))" "+DATE: %Y-%m-%d"
+    fi
+}
+
+# Get current timestamp
+function tick() {
+    if [ -z "$1" ]; then
+        date +%s
+    else
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            date -j -f "%Y-%m-%d" "$1" +%s 2>/dev/null || echo "Invalid date format. Use: YYYY-MM-DD"
+        else
+            date -d "$1" +%s 2>/dev/null || echo "Invalid date format"
+        fi
+    fi
+}
+
+# Get date from Unix timestamp
+function dateFromEpoch() {
+    if [ -z "$1" ]; then
+        echo "Usage: dateFromEpoch <timestamp>"
+        return 1
+    fi
+    date -r "$1" 2>/dev/null || date -d "@$1" 2>/dev/null
+}
+
+# ---- File & Directory Operations ---------------------------------
+# Create directory and cd into it
+function mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Extract various archive formats
+function extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Get file size in human readable format
+function fsize() {
+    if [ -f "$1" ]; then
+        du -sh "$1"
+    else
+        echo "File not found: $1"
+    fi
+}
+
+# ---- Git Utilities -----------------------------------------------
+# Create git branch from Jira ticket
+function gitbranch() {
+    local ticket="$1"
+    local description="$2"
+    if [ -z "$ticket" ] || [ -z "$description" ]; then
+        echo "Usage: gitbranch TICKET-123 'branch description'"
+        return 1
+    fi
+    local branch_name="${ticket}/$(echo "$description" | tr '[:upper:] ' '[:lower:]-' | sed 's/[^a-z0-9-]//g')"
+    git checkout -b "$branch_name"
+}
+
+# Git log with file changes
+function gitlog() {
+    git log --graph --pretty=format:'%C(yellow)%h%C(reset) -%C(red)%d%C(reset) %s %C(green)(%cr) %C(blue)<%an>%C(reset)' --abbrev-commit --date=relative -n "${1:-10}"
+}
+
+# ---- Search & Find -----------------------------------------------
+# Find file by name
+function ff() {
+    find . -type f -iname "*$1*"
+}
+
+# Find directory by name
+function fd() {
+    find . -type d -iname "*$1*"
+}
+
+# Search content in files
+function ftext() {
+    if [ -z "$1" ]; then
+        echo "Usage: ftext 'search term'"
+        return 1
+    fi
+    grep -rnw . -e "$1"
+}
+
+# ---- Process Management ------------------------------------------
+# Kill process by name
+function killp() {
+    if [ -z "$1" ]; then
+        echo "Usage: killp process_name"
+        return 1
+    fi
+    ps aux | grep -i "$1" | grep -v grep | awk '{print $2}' | xargs kill -9
+}
+
+# Find process using port
+function port() {
+    if [ -z "$1" ]; then
+        echo "Usage: port <port_number>"
+        return 1
+    fi
+    lsof -i ":$1"
+}
+
+# ---- Development Utilities ---------------------------------------
+# Start a simple HTTP server
+function serve() {
+    local port="${1:-8000}"
+    echo "Starting HTTP server on port $port..."
+    python3 -m http.server "$port"
+}
+
+# Pretty print JSON
+function json() {
+    if [ -t 0 ]; then
+        # Input from file
+        python3 -m json.tool "$1"
+    else
+        # Input from pipe
+        python3 -m json.tool
+    fi
+}
+
+# ---- macOS Specific ----------------------------------------------
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Quick Look
+    function ql() {
+        qlmanage -p "$1" &> /dev/null
+    }
+    
+    # Flush DNS cache
+    function flushdns() {
+        sudo dscacheutil -flushcache
+        sudo killall -HUP mDNSResponder
+        echo "DNS cache flushed"
+    }
+    
+    # Show/hide hidden files in Finder
+    function showhidden() {
+        defaults write com.apple.finder AppleShowAllFiles YES
+        killall Finder
+    }
+    
+    function hidehidden() {
+        defaults write com.apple.finder AppleShowAllFiles NO
+        killall Finder
+    }
+fi
+
+# ---- Misc Utilities ----------------------------------------------
+# Calculate math expressions
+function calc() {
+    python3 -c "print($*)"
+}
+
+# Create a backup of a file
+function backup() {
+    cp "$1" "$1.backup-$(date +%Y%m%d-%H%M%S)"
+}
+
+# Show disk usage of current directory
+function duf() {
+    du -sh * | sort -h
+}
+

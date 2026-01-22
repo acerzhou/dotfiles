@@ -1,0 +1,53 @@
+-- ═══════════════════════════════════════════════════════════
+-- Hammerspoon Quick Reference
+-- ═══════════════════════════════════════════════════════════
+--
+-- HYPER KEY = Cmd + Ctrl + Alt + Shift
+--
+-- ─────────────────────────────────────────────────────────
+-- WINDOW MANAGEMENT
+-- ─────────────────────────────────────────────────────────
+-- Hyper + M          → Maximize window
+-- Hyper + C          → Center window
+-- Hyper + ←          → Left half
+-- Hyper + →          → Right half
+-- Hyper + ↑          → Top half
+-- Hyper + ↓          → Bottom half
+-- Hyper + 1          → Top-left quarter
+-- Hyper + 2          → Top-right quarter
+-- Hyper + 3          → Bottom-left quarter
+-- Hyper + 4          → Bottom-right quarter
+--
+-- ─────────────────────────────────────────────────────────
+-- MONITOR MANAGEMENT
+-- ─────────────────────────────────────────────────────────
+-- Hyper + N          → Next monitor
+-- Hyper + P          → Previous monitor
+--
+-- ─────────────────────────────────────────────────────────
+-- APPLICATION LAUNCHER
+-- ─────────────────────────────────────────────────────────
+-- Hyper + T          → iTerm
+-- Hyper + B          → Firefox
+-- Hyper + E          → VS Code
+-- Hyper + S          → Slack
+-- Hyper + N          → Notion
+--
+-- ─────────────────────────────────────────────────────────
+-- UTILITIES
+-- ─────────────────────────────────────────────────────────
+-- Hyper + L          → Lock screen
+-- Hyper + V          → Clipboard history
+-- Hyper + W          → Show WiFi network
+-- Hyper + A          → Toggle audio output
+-- Hyper + B          → Show battery status
+--
+-- ─────────────────────────────────────────────────────────
+-- MENU BAR
+-- ─────────────────────────────────────────────────────────
+-- ☕ = Caffeine active (prevent sleep)
+-- 💤 = Caffeine inactive
+--
+-- Click icon to toggle
+--
+-- ═══════════════════════════════════════════════════════════

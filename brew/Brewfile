@@ -1,0 +1,80 @@
+# ═══════════════════════════════════════════════════════════
+# Homebrew Bundle File
+# Install with: brew bundle --file=brew/Brewfile
+# ═══════════════════════════════════════════════════════════
+
+# Taps
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/core"
+tap "homebrew/cask-versions"
+
+# ═══════════════════════════════════════════════════════════
+# Command Line Tools
+# ═══════════════════════════════════════════════════════════
+
+# Shell & Terminal
+brew "zsh"
+brew "tmux"
+brew "fzf"
+brew "autojump"
+
+# Version Control
+brew "git"
+brew "gh"  # GitHub CLI
+
+# Development Tools
+brew "vim"
+brew "htop"
+brew "tree"
+brew "wget"
+brew "curl"
+
+# Text Processing
+brew "jq"   # JSON processor
+brew "yq"   # YAML processor
+brew "bat"  # Better cat
+
+# Search & Navigation
+brew "ripgrep"  # Better grep
+brew "fd"       # Better find
+brew "tldr"     # Simplified man pages
+
+# Database Tools
+brew "libpq"  # PostgreSQL CLI
+
+# Version Managers
+brew "jenv"  # Java version manager
+
+# Build Tools
+brew "cmake"
+brew "shellcheck"  # Shell script linter
+
+# File Compression
+brew "p7zip"
+brew "unrar"
+
+# ═══════════════════════════════════════════════════════════
+# GUI Applications
+# ═══════════════════════════════════════════════════════════
+
+# Development
+cask "visual-studio-code"
+cask "iterm2"
+cask "docker"
+
+# Optional: Uncomment as needed
+# cask "android-studio"
+# cask "postman"
+# cask "sequel-pro"
+
+# ═══════════════════════════════════════════════════════════
+# Optional: Programming Languages
+# ═══════════════════════════════════════════════════════════
+
+# Uncomment to install via Homebrew
+# brew "node"
+# brew "python@3.11"
+# brew "go"
+# brew "rust"
+

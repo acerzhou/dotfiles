@@ -1,6 +1,133 @@
-#alias 
-alias ll='ls -hAlt'
-alias reload='source ~/.zprofile'
-alias config='vim ~/.zprofile'
-alias vimc='vim ~/.vimrc'
+# ═══════════════════════════════════════════════════════════
+# Shell Aliases
+# ═══════════════════════════════════════════════════════════
+
+# ---- Navigation & File Operations --------------------------------
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'
+
+# ---- Enhanced ls -------------------------------------------------
+alias ls='ls -G'  # macOS color
+alias ll='ls -lAh'
+alias la='ls -A'
+alias l='ls -CF'
+alias lt='ls -lAht'  # Sort by time
+alias lsize='ls -lAhS'  # Sort by size
+
+# ---- Configuration Shortcuts -------------------------------------
+alias reload='source ~/.zshrc'
+alias zshconfig='vim ~/.zshrc'
+alias zshrc='vim ~/.zshrc'
+alias zshprofile='vim ~/.zprofile'
+alias aliasconfig='vim ~/.zsh/.alias'
+alias toolsconfig='vim ~/.zsh/.tools'
+alias vimconfig='vim ~/.vimrc'
+alias tmuxconfig='vim ~/.tmux.conf'
+alias gitconfig='vim ~/.gitconfig'
+
+# ---- Date & Time -------------------------------------------------
+alias today='date "+%Y-%m-%d %A - Week %W"'
+alias now='date "+%H:%M:%S"'
+alias timestamp='date +%s'
+alias week='date +%V'
+
+# ---- Python ------------------------------------------------------
+alias python='python3'
+alias pip='pip3'
+
+# ---- Common Shortcuts --------------------------------------------
+alias h='history'
+alias c='clear'
+alias q='exit'
+alias md='mkdir -p'
+alias rd='rmdir'
+
+# ---- Safety Nets -------------------------------------------------
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# ---- System Monitoring -------------------------------------------
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias ports='netstat -tulanp'
+alias meminfo='free -m -l -t'
+alias psmem='ps auxf | sort -nr -k 4'
+alias pscpu='ps auxf | sort -nr -k 3'
+
+# ---- Network -----------------------------------------------------
+alias ping='ping -c 5'
+alias myip='curl -s ifconfig.me'
+alias localip='ipconfig getifaddr en0'  # macOS
+alias ports='lsof -i -P -n | grep LISTEN'
+
+# ═══════════════════════════════════════════════════════════
+# Git Aliases
+# ═══════════════════════════════════════════════════════════
+
+alias g='git'
+alias gst='git status'
+alias gss='git status -sb'
+alias ga='git add'
+alias gaa='git add --all'
+alias gap='git add -p'
+alias gcm='git commit -m'
+alias gc='git commit -v'
+alias gca='git commit --amend --no-edit'
+alias gcam='git commit -am'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gbD='git branch -D'
+alias gl='git pull --rebase'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gpo='git push origin'
+alias gpom='git push origin main'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias gds='git diff --stat'
+alias glog='git log --oneline --graph --decorate --all'
+alias glg='git log --graph --pretty=format:"%C(yellow)%h%C(reset) - %C(green)(%cr)%C(reset) %s %C(blue)<%an>%C(reset)%C(red)%d%C(reset)"'
+alias gundo='git reset --soft HEAD~1'
+alias gstash='git stash'
+alias gstp='git stash pop'
+alias gstl='git stash list'
+alias gup='git fetch --all --prune && git pull --rebase'
+alias gclean='git clean -fd'
+alias greset='git reset --hard HEAD'
+alias gwip='git add -A && git commit -m "WIP"'
+alias gunwip='git log -1 --pretty=%s | grep -q "WIP" && git reset HEAD~1'
+
+# ═══════════════════════════════════════════════════════════
+# Docker Aliases
+# ═══════════════════════════════════════════════════════════
+
+alias d='docker'
+alias dc='docker-compose'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias di='docker images'
+alias drm='docker rm'
+alias drmi='docker rmi'
+alias dstop='docker stop $(docker ps -q)'
+alias dprune='docker system prune -af'
+alias dlog='docker logs -f'
+alias dexec='docker exec -it'
+
+# ═══════════════════════════════════════════════════════════
+# Development Aliases
+# ═══════════════════════════════════════════════════════════
+
+alias npmg='npm list -g --depth=0'
+alias npml='npm list --depth=0'
+alias serve='python3 -m http.server 8000'
+alias json='python3 -m json.tool'
+
 
