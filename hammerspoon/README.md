@@ -1,109 +1,303 @@
 # Hammerspoon Configuration
 
-Hammerspoon configuration for macOS automation and window management.
+A comprehensive Hammerspoon configuration with window management, app launching, clipboard history, text expansion, and more.
 
-## Installation
+---
 
-Hammerspoon will be installed automatically via the main installation script, or you can install it manually:
+## Table of Contents
 
-```bash
-brew install --cask hammerspoon
+1. [Window Management](#window-management)
+2. [App Launcher & Switching](#app-launcher--switching)
+3. [Hyper Key (Vim-style Navigation)](#hyper-key-vim-style-navigation)
+4. [Clipboard Manager](#clipboard-manager)
+5. [Text Expansion](#text-expansion)
+6. [Window Layouts (Workspaces)](#window-layouts-workspaces)
+7. [Weather Menubar](#weather-menubar)
+8. [System Utilities](#system-utilities)
+
+---
+
+## Window Management
+
+Position and resize the focused window with keyboard shortcuts.
+
+| Shortcut                          | Function                              |
+| --------------------------------- | ------------------------------------- |
+| <kbd>⌘⌥⌃</kbd> + <kbd>←</kbd>     | Move window to left half              |
+| <kbd>⌘⌥⌃</kbd> + <kbd>→</kbd>     | Move window to right half             |
+| <kbd>⌘⌥⌃</kbd> + <kbd>↑</kbd>     | Maximize window                       |
+| <kbd>⌘⌥⌃</kbd> + <kbd>↓</kbd>     | Center window (70% of screen)         |
+| <kbd>⌘⌥⌃⇧</kbd> + <kbd>←</kbd>    | Move to top-left quarter              |
+| <kbd>⌘⌥⌃⇧</kbd> + <kbd>→</kbd>    | Move to top-right quarter             |
+| <kbd>⌘⌥⌃⇧</kbd> + <kbd>↓</kbd>    | Move to bottom-right quarter          |
+| <kbd>⌘⌥⌃⇧</kbd> + <kbd>↑</kbd>    | Move to bottom-left quarter           |
+| <kbd>⌘⌥⌃</kbd> + <kbd>N</kbd>     | Move window to next screen            |
+| <kbd>⌘⌥⌃</kbd> + <kbd>P</kbd>     | Move window to previous screen        |
+| <kbd>⌘⌥⌃</kbd> + <kbd>Space</kbd> | Show window hints for quick switching |
+
+---
+
+## App Launcher & Switching
+
+Quick launch and switch between applications.
+
+| Shortcut                     | Application            |
+| ---------------------------- | ---------------------- |
+| <kbd>⌥⇧</kbd> + <kbd>1</kbd> | Firefox                |
+| <kbd>⌥⇧</kbd> + <kbd>2</kbd> | Calendar               |
+| <kbd>⌥⇧</kbd> + <kbd>3</kbd> | Reminders              |
+| <kbd>⌥⇧</kbd> + <kbd>4</kbd> | Notes                  |
+| <kbd>⌥⇧</kbd> + <kbd>9</kbd> | Finder                 |
+| <kbd>⌥⇧</kbd> + <kbd>0</kbd> | Google Chrome          |
+| <kbd>⌥⇧</kbd> + <kbd>T</kbd> | iTerm                  |
+| <kbd>⌥⇧</kbd> + <kbd>C</kbd> | Visual Studio Code     |
+| <kbd>⌥⇧</kbd> + <kbd>M</kbd> | Mail                   |
+| <kbd>⌥⇧</kbd> + <kbd>N</kbd> | Notion                 |
+| <kbd>⌥⇧</kbd> + <kbd>P</kbd> | Switch to previous app |
+
+---
+
+## Hyper Key (Vim-style Navigation)
+
+Uses Caps Lock as Hyper key (requires Karabiner-Elements to map Caps Lock → F18).
+
+### Window Movement (Vim-style)
+
+| Shortcut                        | Function          |
+| ------------------------------- | ----------------- |
+| <kbd>Hyper</kbd> + <kbd>H</kbd> | Left half screen  |
+| <kbd>Hyper</kbd> + <kbd>L</kbd> | Right half screen |
+| <kbd>Hyper</kbd> + <kbd>K</kbd> | Full screen       |
+| <kbd>Hyper</kbd> + <kbd>J</kbd> | Center window     |
+
+### Screen Thirds
+
+| Shortcut                        | Function     |
+| ------------------------------- | ------------ |
+| <kbd>Hyper</kbd> + <kbd>1</kbd> | Left third   |
+| <kbd>Hyper</kbd> + <kbd>2</kbd> | Center third |
+| <kbd>Hyper</kbd> + <kbd>3</kbd> | Right third  |
+
+### Quick App Access
+
+| Shortcut                        | Application        |
+| ------------------------------- | ------------------ |
+| <kbd>Hyper</kbd> + <kbd>T</kbd> | iTerm              |
+| <kbd>Hyper</kbd> + <kbd>B</kbd> | Google Chrome      |
+| <kbd>Hyper</kbd> + <kbd>E</kbd> | Visual Studio Code |
+| <kbd>Hyper</kbd> + <kbd>N</kbd> | Notion             |
+| <kbd>Hyper</kbd> + <kbd>M</kbd> | Mail               |
+
+---
+
+## Clipboard Manager
+
+Quick access to clipboard history with preview.
+
+| Shortcut                     | Function                               |
+| ---------------------------- | -------------------------------------- |
+| <kbd>⌘⌥</kbd> + <kbd>V</kbd> | Show clipboard history (last 50 items) |
+
+**Features:**
+
+- Automatically tracks clipboard changes
+- Shows item preview and position in history
+- Click to paste item automatically
+- Maximum history size: 50 items
+
+---
+
+## Text Expansion
+
+Auto-expand shortcuts to commonly used text and symbols.
+
+| Trigger  | Expansion                                    |
+| -------- | -------------------------------------------- |
+| `@@`     | Your email address (from `MY_EMAIL` env var) |
+| `ddate`  | Current date (YYYY-MM-DD)                    |
+| `ttime`  | Current time (HH:MM)                         |
+| `dts`    | Date + time (YYYY-MM-DD HH:MM:SS)            |
+| `shrug`  | ¯\\_(ツ)_/¯                                  |
+| `lenny`  | ( ͡° ͜ʖ ͡°)                                  |
+| `check`  | ✓                                            |
+| `arrow`  | →                                            |
+| `lambda` | λ                                            |
+
+**Features:**
+
+- Real-time text replacement as you type
+- Resets word tracking on space/enter
+- Add custom expansions via `M.addExpansion(trigger, replacement)`
+
+---
+
+## Window Layouts (Workspaces)
+
+Apply predefined window arrangements for different work contexts.
+
+| Shortcut                      | Layout            | Applications                                                           |
+| ----------------------------- | ----------------- | ---------------------------------------------------------------------- |
+| <kbd>⌘⌥⌃</kbd> + <kbd>1</kbd> | **Dev**           | VS Code (60%), iTerm (40% top), Firefox (40% mid), Docker (40% bottom) |
+| <kbd>⌘⌥⌃</kbd> + <kbd>2</kbd> | **Writing**       | Notion or Notes (70% centered)                                         |
+| <kbd>⌘⌥⌃</kbd> + <kbd>3</kbd> | **Communication** | Mail (50% left), Calendar (50% top-right), Slack (50% bottom-right)    |
+
+**Features:**
+
+- Automatically launches apps if not running
+- Positions windows with smooth animation (0.15s)
+- Add custom layouts via `M.addLayout(name, layout)`
+
+---
+
+## Weather Menubar
+
+Live weather display in the macOS menubar.
+
+| Action                    | Function                                      |
+| ------------------------- | --------------------------------------------- |
+| **Menubar Click**         | Show menu options                             |
+| **Update Weather**        | Manually refresh weather data                 |
+| **Open Weather Forecast** | Opens wttr.in forecast in browser             |
+| **Change Location**       | Set weather location (default: San Francisco) |
+
+**Features:**
+
+- Auto-updates every 30 minutes
+- Uses wttr.in API for weather data
+- Shows temperature and weather icon
+- Configure with `weatherCity` variable (use underscores for spaces)
+
+---
+
+## System Utilities
+
+System-level utilities and configuration management.
+
+| Shortcut                      | Function                               |
+| ----------------------------- | -------------------------------------- |
+| <kbd>⌘⌥⌃</kbd> + <kbd>R</kbd> | Reload Hammerspoon configuration       |
+| <kbd>⌘⌥⌃</kbd> + <kbd>O</kbd> | Open config folder in VS Code          |
+| <kbd>⌘⌥⌃</kbd> + <kbd>C</kbd> | Toggle caffeinate mode (prevent sleep) |
+| <kbd>⌘⌥⌃</kbd> + <kbd>H</kbd> | Show help/available hotkeys            |
+
+**Features:**
+
+- Auto-reload configuration on file changes
+- Caffeinate toggle prevents display sleep
+- Quick access to config files
+- Help display with keyboard shortcuts
+
+---
+
+## Configuration Files
+
+```text
+~/.hammerspoon/
+├── init.lua                      # Main entry point
+├── README.md                     # This file
+└── modules/
+    ├── window-management.lua     # Window positioning and layouts
+    ├── app-launcher.lua          # Application launcher and switcher
+    ├── hyper-key.lua             # Hyper key bindings
+    ├── clipboard.lua             # Clipboard history manager
+    ├── text-expansion.lua        # Text expansion engine
+    ├── layouts.lua               # Workspace layouts
+    ├── weather.lua               # Menubar weather display
+    └── system.lua                # System utilities
 ```
 
-Then create a symlink:
+---
 
-```bash
-ln -sf ~/Repos/dotfiles/hammerspoon ~/.hammerspoon
-```
+## Installation & Setup
 
-## Keybindings
+### Prerequisites
 
-All keybindings use the **Hyper** key: `Cmd + Ctrl + Alt + Shift`
+- macOS
+- [Hammerspoon](http://www.hammerspoon.org/) installed
+- [Karabiner-Elements](https://karabiner-elements.pica4.jp/) (for Hyper key support)
 
-### Window Management
+### Installation Steps
 
-| Keybinding  | Action                       |
-| ----------- | ---------------------------- |
-| `Hyper + M` | Maximize window              |
-| `Hyper + C` | Center window                |
-| `Hyper + ←` | Move to left half            |
-| `Hyper + →` | Move to right half           |
-| `Hyper + ↑` | Move to top half             |
-| `Hyper + ↓` | Move to bottom half          |
-| `Hyper + 1` | Move to top-left quarter     |
-| `Hyper + 2` | Move to top-right quarter    |
-| `Hyper + 3` | Move to bottom-left quarter  |
-| `Hyper + 4` | Move to bottom-right quarter |
+1. **Install Hammerspoon**
 
-### Monitor Management
+   ```bash
+   brew install hammerspoon
+   ```
 
-| Keybinding  | Action                          |
-| ----------- | ------------------------------- |
-| `Hyper + N` | Move window to next monitor     |
-| `Hyper + P` | Move window to previous monitor |
+2. **Install Karabiner-Elements** (optional, for Hyper key)
 
-### Application Launcher
+   ```bash
+   brew install karabiner-elements
+   ```
 
-| Keybinding  | Application |
-| ----------- | ----------- |
-| `Hyper + T` | iTerm       |
-| `Hyper + B` | Firefox     |
-| `Hyper + E` | VS Code     |
-| `Hyper + S` | Slack       |
-| `Hyper + N` | Notion      |
+   - Configure Caps Lock → F18 in Karabiner
 
-### Utilities
+3. **Clone or copy config to**
 
-| Keybinding  | Action                 |
-| ----------- | ---------------------- |
-| `Hyper + L` | Lock screen            |
-| `Hyper + V` | Show clipboard history |
-| `Hyper + W` | Show WiFi network      |
-| `Hyper + A` | Toggle audio output    |
+   ```bash
+   ~/.hammerspoon/
+   ```
 
-### Menu Bar
+4. **Reload Hammerspoon**
+   - Open Hammerspoon app
+   - Press <kbd>⌘⌥⌃</kbd> + <kbd>R</kbd>
 
-- **☕** - Caffeine is active (preventing sleep)
-- **💤** - Caffeine is inactive
+5. **Set environment variable** (for email expansion)
+   ```bash
+   export MY_EMAIL="your.email@example.com"
+   ```
 
-Click the menu bar icon to toggle.
+---
 
 ## Customization
 
-Edit [`init.lua`](init.lua) to customize:
+### Add Custom Text Expansions
 
-- Change keybindings
-- Add more applications to the launcher
-- Modify window positions
-- Add custom automation
-
-## Tips
-
-### Setting up Hyper Key
-
-Since `Hyper` requires 4 modifiers, you might want to map a single key (like Caps Lock) to act as Hyper using [Karabiner-Elements](https://karabiner-elements.pqrs.org/):
-
-```bash
-brew install --cask karabiner-elements
+```lua
+local textExpansion = require("modules.text-expansion")
+textExpansion.addExpansion("brb", "Be right back!")
 ```
 
-### Auto-start Hammerspoon
+### Add Custom Window Layouts
 
-Hammerspoon can be set to start automatically on login from System Preferences → Users & Groups → Login Items.
+```lua
+local layouts = require("modules.layouts")
+layouts.addLayout("custom", {
+    {"App Name", nil, nil, {0, 0, 0.5, 1}},
+})
+```
 
-## Features
+### Change Weather Location
 
-- ✅ Window management (halves, quarters, maximize)
-- ✅ Multi-monitor support
-- ✅ Quick application launcher
-- ✅ Caffeine (prevent sleep)
-- ✅ Clipboard history
-- ✅ Audio device switcher
-- ✅ System information display
-- ✅ Auto-reload configuration
+Edit `modules/weather.lua`:
 
-## Learn More
+```lua
+local weatherCity = "London"  -- Use underscores for spaces: "New_York"
+```
 
-- [Hammerspoon Documentation](http://www.hammerspoon.org/docs/)
-- [Hammerspoon API](http://www.hammerspoon.org/docs/index.html)
-- [Sample Configs](https://github.com/Hammerspoon/hammerspoon/wiki/Sample-Configurations)
+---
+
+## Troubleshooting
+
+| Issue                 | Solution                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| Hotkeys not working   | Ensure Hammerspoon has accessibility permissions (System Preferences → Security & Privacy) |
+| Hyper key not working | Install and configure Karabiner-Elements, map Caps Lock to F18                             |
+| Weather shows error   | Check internet connection and verify city name spelling                                    |
+| Config not reloading  | Check file permissions and ensure `.lua` files are in correct directory                    |
+
+---
+
+## Tips & Tricks
+
+- Use window management shortcuts in combination for complex layouts
+- Clipboard history shows 50 recent items by default
+- Text expansion works globally across all applications
+- Layouts automatically launch and position apps
+- Check `hs.logger.setLogLevel()` in console for debugging
+
+---
+
+## License
+
+Personal configuration. Modify as needed.
