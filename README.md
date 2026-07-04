@@ -43,6 +43,7 @@ The installation script will:
 - ✅ Create symbolic links to dotfiles
 - ✅ Optionally install packages (Homebrew/apt)
 - ✅ Set up ZSH, Vim, Tmux, and Git configurations
+- ✅ Optionally create an SSH key with interactive email and passphrase prompts
 
 ## 📁 Structure
 

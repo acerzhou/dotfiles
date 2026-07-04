@@ -159,6 +159,24 @@ setup_git() {
     fi
 }
 
+# Setup SSH key
+setup_ssh_key() {
+    local ssh_key_script="$DOTFILES_DIR/script/create-ssh-key.sh"
+
+    if [ ! -f "$ssh_key_script" ]; then
+        warning "SSH key setup script not found: $ssh_key_script"
+        return 0
+    fi
+
+    read -p "Create an SSH key now? (y/n) " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        bash "$ssh_key_script"
+    else
+        info "Skipping SSH key setup"
+    fi
+}
+
 # Setup iTerm2 (macOS only)
 setup_iterm2() {
     if [ "$OS" == "macos" ] && [ -f "$DOTFILES_DIR/iterm/iterm2-config.json" ]; then
@@ -210,6 +228,7 @@ main() {
     setup_vim
     setup_tmux
     setup_git
+    setup_ssh_key
     setup_iterm2
     setup_hammerspoon
     

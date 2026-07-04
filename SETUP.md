@@ -30,6 +30,7 @@ The installer will:
 - ✅ Install packages from Brewfile
 - ✅ Create symlinks for all configurations
 - ✅ Set ZSH as default shell
+- ✅ Optionally create an SSH key during setup
 
 ### 3. Customize Git Config
 
