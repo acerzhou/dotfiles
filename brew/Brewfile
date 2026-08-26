@@ -38,21 +38,20 @@ brew "bat"  # Better cat
 # Search & Navigation
 brew "ripgrep"  # Better grep
 brew "fd"       # Better find
-brew "tldr"     # Simplified man pages
 
 # Database Tools
 brew "libpq"  # PostgreSQL CLI
 
 # Version Managers
-brew "jenv"  # Java version manager
+# brew "jenv"  # Java version manager
 
 # Build Tools
 brew "cmake"
 brew "shellcheck"  # Shell script linter
 
 # File Compression
-brew "p7zip"
-brew "unrar"
+# brew "p7zip"
+# brew "unrar"
 
 # ═══════════════════════════════════════════════════════════
 # GUI Applications
@@ -62,6 +61,8 @@ brew "unrar"
 cask "visual-studio-code"
 cask "iterm2"
 cask "docker"
+cask "firefox"
+cask "google-chrome"
 
 # Optional: Uncomment as needed
 # cask "android-studio"
