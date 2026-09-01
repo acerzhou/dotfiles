@@ -46,7 +46,7 @@ brew "libpq"  # PostgreSQL CLI
 # brew "jenv"  # Java version manager
 
 # Build Tools
-brew "cmake"
+# brew "cmake"
 brew "shellcheck"  # Shell script linter
 
 # File Compression
