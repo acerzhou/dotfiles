@@ -44,27 +44,27 @@ hammerspoon:
 
 # Install only symlinks (no packages)
 install-links:
-	@bash ./symlink-manager.sh install
+	@bash ./scripts/dotfiles/links.sh install
 
 # Uninstall symlinks
 uninstall:
-	@bash ./symlink-manager.sh uninstall
+	@bash ./scripts/dotfiles/links.sh uninstall
 
 # Backup current configuration
 backup:
-	@bash ./backup.sh backup
+	@bash ./scripts/dotfiles/backups.sh backup
 
 # Restore from backup
 restore:
-	@bash ./backup.sh restore "$(BACKUP)"
+	@bash ./scripts/dotfiles/backups.sh restore "$(BACKUP)"
 
 # List backups
 list-backups:
-	@bash ./backup.sh list
+	@bash ./scripts/dotfiles/backups.sh list
 
 # Check symlink status
 check:
-	@bash ./symlink-manager.sh check
+	@bash ./scripts/dotfiles/links.sh check
 
 # Update dotfiles
 update:
@@ -75,7 +75,7 @@ update:
 
 # Clean old backups
 clean:
-	@bash ./backup.sh cleanup
+	@bash ./scripts/dotfiles/backups.sh cleanup
 
 # Test against temporary homes without installing packages
 test:

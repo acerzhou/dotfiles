@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Snapshot and restore managed dotfiles. Compatible with Bash 3.2.
+# Create, restore, list, and clean managed dotfile backups.
 set -euo pipefail
 
 BACKUP_BASE_DIR="$HOME/.dotfiles-backups"
@@ -37,7 +37,7 @@ create_backup() {
         return 0
     fi
     printf 'Backed up %s paths to: %s\n' "$count" "$backup_dir"
-    printf 'Restore with: ./backup.sh restore %s\n' "${backup_dir##*/}"
+    printf 'Restore with: make restore BACKUP=%s\n' "${backup_dir##*/}"
 }
 
 list_backups() {

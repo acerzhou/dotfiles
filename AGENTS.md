@@ -44,14 +44,25 @@ Use this file as the default operating contract for AI-assisted work in this rep
 - Share code only after multiple active callers need the same behavior; avoid helper layers for one-off logic.
 - Delete obsolete code instead of retaining aliases or wrappers unless backward compatibility is explicitly required.
 
+## Documentation
+
+- Keep `README.md` as a concise overview, quick start, structure map, and documentation index.
+- Keep detailed installation, customization, maintenance, and recovery guidance in `docs/setup.md`.
+- Keep domain-specific documentation beside its code, such as `hammerspoon/README.md`.
+- Keep `CHANGELOG.md` historical; do not use it as current setup documentation.
+- Link to the owning document instead of copying instructions between files.
+
 ## Repository map
 
 - `install.sh`: thin public command dispatcher.
-- `script/install-packages.sh`: package validation, preview, and installation.
-- `script/configure-macos.sh`: dotfile linking and interactive macOS configuration.
-- `symlink-manager.sh`: install, check, and remove managed dotfile links.
-- `backup.sh`: snapshot, restore, list, and clean backups.
+- `scripts/packages/install.sh`: package validation, preview, and installation.
+- `scripts/macos/configure.sh`: dotfile linking and interactive macOS configuration.
+- `scripts/dotfiles/links.sh`: install, check, and remove managed dotfile links.
+- `scripts/dotfiles/backups.sh`: snapshot, restore, list, and clean backups.
+- `scripts/ssh/` and `scripts/utilities/`: focused supporting tools.
 - `Makefile`: supported user commands.
+- `README.md`: repository overview and documentation index.
+- `docs/setup.md`: detailed user operations.
 - `brew/Brewfile`: canonical default package manifest.
 - `profiles/personal/Brewfile`: personal-only package additions.
 - `zsh/`, `git/`, `tmux/`, `vim/`: canonical default dotfiles.

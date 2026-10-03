@@ -45,7 +45,7 @@ Vim starts with built-in settings when plugins are missing. Install [vim-plug](h
 
 For iTerm2, import `iterm/iterm2-config.json` using Settings → Profiles → Other Actions → Import JSON Profiles. This file is a profile export.
 
-For Hammerspoon, open the app, enable Accessibility access when prompted, and reload its configuration from the menu. See [hammerspoon/README.md](hammerspoon/README.md) for shortcuts and optional Karabiner setup.
+For Hammerspoon, open the app, enable Accessibility access when prompted, and reload its configuration from the menu. See [the Hammerspoon guide](../hammerspoon/README.md) for shortcuts and optional Karabiner setup.
 
 ## Commands
 

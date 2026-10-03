@@ -3,7 +3,7 @@
 # Manage dotfile links with macOS's bundled Bash or newer Bash versions.
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BACKUP_DIR=""
 SOURCES=(zsh/.zshrc zsh/.zprofile zsh/.alias zsh/.tools vim/.vimrc tmux/.tmux.conf git/.gitconfig git/.gitignore_global)
 TARGETS=(.zshrc .zprofile .zsh/.alias .zsh/.tools .vimrc .tmux.conf .gitconfig .gitignore_global)

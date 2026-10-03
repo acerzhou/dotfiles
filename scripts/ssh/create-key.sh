@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Create the user's default Ed25519 SSH key.
+
 set -euo pipefail
 
 RED='\033[0;31m'

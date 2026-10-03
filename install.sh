@@ -26,11 +26,11 @@ fi
 
 case "$command" in
     install|profiles)
-        exec bash "$DOTFILES_DIR/script/install-packages.sh" "$command" "$@"
+        exec bash "$DOTFILES_DIR/scripts/packages/install.sh" "$command" "$@"
         ;;
     config)
         [ "$#" -eq 0 ] || { usage >&2; exit 1; }
-        exec bash "$DOTFILES_DIR/script/configure-macos.sh"
+        exec bash "$DOTFILES_DIR/scripts/macos/configure.sh"
         ;;
     hammerspoon)
         [ "$#" -eq 0 ] || { usage >&2; exit 1; }

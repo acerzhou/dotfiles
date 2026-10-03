@@ -3,7 +3,7 @@
 # Install the canonical Brewfile and optional package additions.
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PROFILE_NAME="${PROFILE:-default}"
 PROFILE_BREWFILE=""
 DRY_RUN=false

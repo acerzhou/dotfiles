@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Select a command or language for use with an external cheatsheet client.
+
 set -euo pipefail
 
 command -v fzf >/dev/null 2>&1 || {

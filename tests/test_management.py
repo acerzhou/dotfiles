@@ -28,21 +28,21 @@ class ManagementTests(unittest.TestCase):
         return sorted((self.home / ".dotfiles-backups").glob("*"))
 
     def test_check_reports_all_missing_links(self):
-        output = self.run_script("symlink-manager.sh", "check", expected=1)
+        output = self.run_script("scripts/dotfiles/links.sh", "check", expected=1)
         self.assertIn("8 missing (total: 8)", output)
         self.assertIn(".gitignore_global", output)
 
     def test_links_are_idempotent_and_hammerspoon_is_separate(self):
         self.env["OSTYPE"] = "darwin"
-        self.run_script("symlink-manager.sh", "install")
-        self.run_script("symlink-manager.sh", "install")
-        self.run_script("symlink-manager.sh", "check")
+        self.run_script("scripts/dotfiles/links.sh", "install")
+        self.run_script("scripts/dotfiles/links.sh", "install")
+        self.run_script("scripts/dotfiles/links.sh", "check")
         self.assertFalse((self.home / ".hammerspoon").exists())
         self.assertEqual(self.backups(), [])
         other = self.home / ".vimrc"
         other.unlink()
         other.symlink_to(self.home / "unmanaged")
-        self.run_script("symlink-manager.sh", "uninstall")
+        self.run_script("scripts/dotfiles/links.sh", "uninstall")
         self.assertTrue(other.is_symlink())
         self.assertFalse((self.home / ".zshrc").exists())
 
@@ -52,23 +52,23 @@ class ManagementTests(unittest.TestCase):
         zsh.mkdir()
         (zsh / ".alias").write_text("original aliases")
         (zsh / "local").write_text("keep me")
-        self.run_script("symlink-manager.sh", "install")
+        self.run_script("scripts/dotfiles/links.sh", "install")
         backup = self.backups()[0]
-        self.run_script("backup.sh", "restore", backup.name, stdin="y\n")
+        self.run_script("scripts/dotfiles/backups.sh", "restore", backup.name, stdin="y\n")
         self.assertEqual((self.home / ".zshrc").read_text(), "original shell")
         self.assertEqual((zsh / ".alias").read_text(), "original aliases")
         self.assertEqual((zsh / "local").read_text(), "keep me")
         self.assertFalse((zsh / ".alias").is_symlink())
 
     def test_snapshots_copy_linked_contents_and_do_not_collide(self):
-        self.run_script("symlink-manager.sh", "install")
-        self.run_script("backup.sh", "backup")
-        self.run_script("backup.sh", "backup")
+        self.run_script("scripts/dotfiles/links.sh", "install")
+        self.run_script("scripts/dotfiles/backups.sh", "backup")
+        self.run_script("scripts/dotfiles/backups.sh", "backup")
         self.assertEqual(len(self.backups()), 2)
         backup = self.backups()[0]
         self.assertFalse((backup / ".zshrc").is_symlink())
         self.assertEqual((backup / ".zshrc").read_text(), (REPO / "zsh/.zshrc").read_text())
-        self.run_script("backup.sh", "restore", backup.name, stdin="y\n")
+        self.run_script("scripts/dotfiles/backups.sh", "restore", backup.name, stdin="y\n")
         self.assertFalse((self.home / ".zshrc").is_symlink())
         self.assertFalse((self.home / ".zsh/.alias").is_symlink())
 
@@ -76,24 +76,24 @@ class ManagementTests(unittest.TestCase):
         backup = self.home / ".dotfiles-backups/20260101-000000"
         backup.mkdir(parents=True)
         (backup / ".vimrc").write_text("original vim")
-        self.run_script("backup.sh", "restore", backup.name, stdin="y\n")
+        self.run_script("scripts/dotfiles/backups.sh", "restore", backup.name, stdin="y\n")
         self.assertEqual((self.home / ".vimrc").read_text(), "original vim")
-        self.run_script("backup.sh", "restore", expected=1)
-        self.run_script("backup.sh", "restore", "../outside", expected=1)
+        self.run_script("scripts/dotfiles/backups.sh", "restore", expected=1)
+        self.run_script("scripts/dotfiles/backups.sh", "restore", "../outside", expected=1)
 
     def test_cleanup_keeps_newest_five_and_unrelated_directories(self):
         base = self.home / ".dotfiles-backups"
         for day in range(1, 8):
             (base / f"202601{day:02d}-000000").mkdir(parents=True)
         (base / "unrelated").mkdir()
-        self.run_script("backup.sh", "cleanup")
+        self.run_script("scripts/dotfiles/backups.sh", "cleanup")
         self.assertEqual([p.name for p in self.backups()],
                          [f"202601{day:02d}-000000" for day in range(3, 8)] + ["unrelated"])
 
     def test_empty_backup_operations(self):
-        self.run_script("backup.sh", "list")
-        self.run_script("backup.sh", "backup")
-        self.run_script("backup.sh", "cleanup")
+        self.run_script("scripts/dotfiles/backups.sh", "list")
+        self.run_script("scripts/dotfiles/backups.sh", "backup")
+        self.run_script("scripts/dotfiles/backups.sh", "cleanup")
 
     def test_profiles_are_listed_and_can_be_previewed(self):
         output = self.run_script("install.sh", "profiles")
@@ -200,7 +200,7 @@ class ManagementTests(unittest.TestCase):
 
     @unittest.skipUnless(Path("/bin/zsh").exists(), "ZSH is unavailable")
     def test_shell_startup_has_no_conflicting_aliases(self):
-        self.run_script("symlink-manager.sh", "install")
+        self.run_script("scripts/dotfiles/links.sh", "install")
         result = subprocess.run(["/bin/zsh", "-dfc",
                                  'OSTYPE=darwin; source "$HOME/.zprofile"; '
                                  'source "$HOME/.zshrc"; whence -w myip serve json fdir'],

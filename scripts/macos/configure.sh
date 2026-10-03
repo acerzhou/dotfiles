@@ -3,7 +3,7 @@
 # Link the repository configuration and perform interactive macOS setup.
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 info() { printf '\033[0;34m==>\033[0m %s\n' "$1"; }
 success() { printf '\033[0;32m✓\033[0m %s\n' "$1"; }
@@ -65,7 +65,7 @@ offer_ssh_key() {
     read -r -p "Create an SSH key now? (y/n) " -n 1
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        bash "$DOTFILES_DIR/script/create-ssh-key.sh"
+        bash "$DOTFILES_DIR/scripts/ssh/create-key.sh"
     else
         info "Skipping SSH key setup"
     fi
@@ -86,7 +86,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-bash "$DOTFILES_DIR/symlink-manager.sh" install
+bash "$DOTFILES_DIR/scripts/dotfiles/links.sh" install
 configure_login_shell
 offer_ssh_key
 show_iterm_import_help
