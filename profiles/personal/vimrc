@@ -1,3 +1,0 @@
-let g:dotfiles_profile = "personal"
-
-" Add personal Vim overrides below.

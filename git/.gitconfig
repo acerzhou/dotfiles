@@ -106,10 +106,6 @@
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
 
-# Situation-specific settings override the general configuration.
-[include]
-	path = ~/.config/dotfiles/profile/gitconfig
-
 # Machine-specific identity and settings load last.
 [include]
 	path = ~/.gitconfig.local

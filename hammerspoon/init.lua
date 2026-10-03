@@ -24,14 +24,5 @@ layouts.init()
 hyperKey.init(windowMgmt.moveWindow, appLauncher.open_app)
 system.init()
 
--- Load optional shortcuts and modules from the active profile.
-local profileInit = os.getenv("HOME") .. "/.config/dotfiles/profile/hammerspoon/init.lua"
-if hs.fs.attributes(profileInit) then
-    local ok, profileError = pcall(dofile, profileInit)
-    if not ok then
-        hs.alert.show("Profile config error: " .. profileError)
-    end
-end
-
 -- Startup notification
 hs.alert.show("Hammerspoon config loaded!")

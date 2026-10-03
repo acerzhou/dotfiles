@@ -24,15 +24,37 @@ Use this file as the default operating contract for AI-assisted work in this rep
 - Keep updates brief: outcome, blocker, or decision needed. Do not narrate routine commands.
 - Test the narrowest relevant surface first; run the full suite only when warranted.
 
+## Architecture contract
+
+- There is one configuration path: the root Zsh, Git, Tmux, Vim, and Hammerspoon files are the default and authoritative configuration.
+- Do not introduce configuration profiles, profile switching, active-profile symlinks, or duplicate setup paths.
+- `brew/Brewfile` is the complete canonical package manifest and is always installed first.
+- `profiles/personal/Brewfile` is additive. It must contain only packages absent from `brew/Brewfile`; never copy default packages into it.
+- `PROFILE=personal` affects package installation and preview only. It must not alter dotfile configuration.
+- Keep `profiles/personal/` Brew-only unless the user explicitly changes this architecture.
+- Prefer direct manifests and commands over compatibility wrappers such as split common/default Brewfiles.
+- Machine-specific configuration belongs in documented local files in the user's home directory, never in tracked profiles.
+
+## Code design
+
+- Give each script one domain: dispatch, packages, machine configuration, links, backups, SSH keys, or Hammerspoon.
+- Keep `install.sh` as a thin public dispatcher; put implementation in the domain script that owns it.
+- Do not add compatibility entry points, duplicate command paths, or hard-coded package lists outside Brewfiles.
+- Prefer short functions with explicit inputs and early returns. Keep command parsing separate from the operation it invokes.
+- Share code only after multiple active callers need the same behavior; avoid helper layers for one-off logic.
+- Delete obsolete code instead of retaining aliases or wrappers unless backward compatibility is explicitly required.
+
 ## Repository map
 
-- `install.sh`: profile-aware package installation and configuration entry point.
+- `install.sh`: thin public command dispatcher.
+- `script/install-packages.sh`: package validation, preview, and installation.
+- `script/configure-macos.sh`: dotfile linking and interactive macOS configuration.
 - `symlink-manager.sh`: install, check, and remove managed dotfile links.
 - `backup.sh`: snapshot, restore, list, and clean backups.
 - `Makefile`: supported user commands.
 - `brew/Brewfile`: canonical default package manifest.
-- `profiles/personal/`: personal-only package/config additions; see `profiles/README.md`.
-- `zsh/`, `git/`, `tmux/`, `vim/`: shared dotfiles.
+- `profiles/personal/Brewfile`: personal-only package additions.
+- `zsh/`, `git/`, `tmux/`, `vim/`: canonical default dotfiles.
 - `hammerspoon/`: separately installed macOS automation.
 - `tests/test_management.py`: isolated regression tests using temporary home directories.
 
@@ -46,12 +68,12 @@ make install-plan PROFILE=personal  # package/profile preview
 make profiles             # profile discovery
 ```
 
-Do not run `make install`, `make config`, `make switch`, `make hammerspoon`, `make update`, or other commands that alter the real machine merely to verify a change. `make check` inspects the real home directory, so use it only when that is explicitly intended.
+Do not run `make install`, `make config`, `make hammerspoon`, `make update`, or other commands that alter the real machine merely to verify a change. `make check` inspects the real home directory, so use it only when that is explicitly intended.
 
 ## Change conventions
 
 - Shell scripts target macOS and use `bash` with `set -euo pipefail` where already established.
-- Keep shared behavior in root component directories; put situation-specific behavior in `profiles/<name>/`.
-- Keep local-only configuration under ignored `profiles/local/` or the documented files in the user's home directory.
+- Keep configuration in the root component directories. Profiles contain package additions only.
+- Keep local-only configuration in the documented files in the user's home directory.
 - Add or update regression tests for behavior changes.
 - Update documentation when commands, profiles, loading order, or user-visible behavior changes.

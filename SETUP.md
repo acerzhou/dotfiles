@@ -23,16 +23,7 @@ make install-plan PROFILE=personal
 
 Default packages are in `brew/Brewfile`; optional additions are in `profiles/<name>/Brewfile`.
 
-`make config` links the default ZSH, Vim, Tmux, and Git configuration, backs up replaced paths, sets ZSH as your default shell, and offers SSH key creation. `PROFILE=personal` also creates `~/.config/dotfiles/profile` as a symlink to the personal overlay; selecting `default` removes that optional link.
-
-```bash
-# Change overlays later without reinstalling packages or relinking dotfiles
-make switch PROFILE=personal
-make profile
-exec zsh
-```
-
-Default configuration loads first, an active add-on profile loads second, and untracked machine-local files load last. See [`profiles/README.md`](profiles/README.md) for supported overlay files. Hammerspoon still has its own installer at `hammerspoon/install.sh`.
+`make config` links the default ZSH, Vim, Tmux, and Git configuration, backs up replaced paths, sets ZSH as your default shell, and offers SSH key creation. Configuration does not vary by package profile. Hammerspoon still has its own installer at `hammerspoon/install.sh`.
 
 If Homebrew's ZSH appears first in `PATH`, configuration still uses a registered login shell from `/etc/shells` (normally `/bin/zsh` on macOS). If ZSH is already your default, it leaves the setting unchanged.
 
@@ -44,7 +35,7 @@ git config --file ~/.gitconfig.local user.email "your.email@example.com"
 exec zsh
 ```
 
-The shared Git configuration includes `~/.gitconfig.local` automatically. Personal shell settings belong in `~/.zshrc.local`, loaded by the interactive shell.
+The default Git configuration includes `~/.gitconfig.local` automatically. Machine-local shell settings belong in `~/.zshrc.local`, loaded by the interactive shell.
 
 ## Optional Setup
 
@@ -63,21 +54,19 @@ For Hammerspoon, open the app, enable Accessibility access when prompted, and re
 | `make install [PROFILE=<name>]` | Install default packages and optional additions |
 | `make install-plan [PROFILE=<name>]` | Preview packages without installing |
 | `make profiles` | List available profiles |
-| `make config [PROFILE=<name>]` | Apply default configuration and an optional overlay |
-| `make switch PROFILE=<name>` | Switch configuration overlays only |
-| `make profile` | Show the active profile |
-| `make install-links` | Apply shared symlinks only |
+| `make config` | Apply the default configuration |
+| `make install-links` | Apply default symlinks only |
 | `make hammerspoon` | Install and configure Hammerspoon |
 | `make check` | Report all managed link statuses |
 | `make backup` | Snapshot current dotfiles |
 | `make list-backups` | List available backups |
 | `make restore BACKUP=<name>` | Restore a backup after confirmation |
 | `make uninstall` | Remove links pointing to this repository |
-| `make update` | Pull changes and reapply shared configuration |
+| `make update` | Pull changes and reapply default configuration |
 | `make clean` | Keep the five newest backups |
 | `make test` | Run isolated regression tests |
 
-You can run `bash install.sh install --profile personal`, `bash install.sh config --profile default`, or `bash install.sh switch --profile personal` directly. Omitting `--profile` uses the default configuration with no overlay.
+You can run `bash install.sh install --profile personal` or `bash install.sh config` directly. The profile flag applies only to package installation.
 
 ## Backups and Restore
 
@@ -96,7 +85,7 @@ Use the exact name shown by `make list-backups`. Backups from older installers u
 # Inspect every managed link; missing/incorrect links produce a nonzero exit
 make check
 
-# Reapply shared links and Hammerspoon independently
+# Reapply default links and Hammerspoon independently
 make install-links
 make hammerspoon
 
@@ -107,4 +96,4 @@ zsh -n ~/.zshrc
 source ~/.zshrc
 ```
 
-`make uninstall` removes shared dotfile links that point to this repository. It preserves unrelated files, links, and the separately managed Hammerspoon configuration. The optional `script/*-clean-up.sh` scripts remove applications explicitly listed in those files; review them before running.
+`make uninstall` removes default dotfile links that point to this repository. It preserves unrelated files, links, installed packages, and the separately managed Hammerspoon configuration.

@@ -1,4 +1,4 @@
-.PHONY: help install install-plan profiles config switch profile hammerspoon install-links uninstall backup restore list-backups check update clean chmod test
+.PHONY: help install install-plan profiles config hammerspoon install-links uninstall backup restore list-backups check update clean test
 
 PROFILE ?= default
 
@@ -10,17 +10,15 @@ help:
 	@echo "  make install PROFILE=<name> - Install packages (default: default)"
 	@echo "  make install-plan PROFILE=<name> - Preview packages without installing"
 	@echo "  make profiles      - List available profiles"
-	@echo "  make config PROFILE=<name> - Configure defaults + optional profile"
-	@echo "  make switch PROFILE=<name> - Change the active config profile"
-	@echo "  make profile       - Show the active config profile"
+	@echo "  make config        - Configure the default dotfiles"
 	@echo "  make hammerspoon   - Install and configure Hammerspoon (macOS)"
-	@echo "  make install-links - Link shared dotfiles without shell setup"
+	@echo "  make install-links - Link default dotfiles without shell setup"
 	@echo "  make uninstall     - Remove symlinks"
 	@echo "  make backup        - Backup current dotfiles"
 	@echo "  make restore       - Restore from backup (BACKUP=<name>)"
 	@echo "  make list-backups  - List available backups"
 	@echo "  make check         - Check symlink status"
-	@echo "  make update        - Pull latest changes and reapply shared config"
+	@echo "  make update        - Pull latest changes and reapply default config"
 	@echo "  make test          - Run isolated regression tests"
 	@echo "  make clean         - Clean old backups"
 	@echo ""
@@ -36,17 +34,9 @@ install-plan:
 profiles:
 	@bash ./install.sh profiles
 
-# Configure shared dotfiles
+# Configure default dotfiles
 config:
-	@bash ./install.sh config --profile "$(PROFILE)"
-
-# Switch overlays without reinstalling packages or relinking shared files
-switch:
-	@bash ./install.sh switch --profile "$(PROFILE)"
-
-# Show the currently active configuration profile
-profile:
-	@bash ./install.sh profile
+	@bash ./install.sh config
 
 # Install and configure Hammerspoon independently
 hammerspoon:
@@ -80,19 +70,12 @@ check:
 update:
 	@echo "Pulling latest changes..."
 	@git pull origin main
-	@echo "Reapplying shared configuration..."
-	@bash ./install.sh config --profile "$(PROFILE)"
+	@echo "Reapplying default configuration..."
+	@bash ./install.sh config
 
 # Clean old backups
 clean:
 	@bash ./backup.sh cleanup
-
-# Make all scripts executable
-chmod:
-	@chmod +x install.sh symlink-manager.sh backup.sh
-	@chmod +x script/*.sh
-	@chmod +x hammerspoon/install.sh
-	@echo "Made all scripts executable"
 
 # Test against temporary homes without installing packages
 test:

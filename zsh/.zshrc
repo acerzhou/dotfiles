@@ -153,11 +153,6 @@ fi
 # Load custom tools and functions
 [ -f ~/.zsh/.tools ] && source ~/.zsh/.tools
 
-# Load the active situation-specific profile.
-DOTFILES_PROFILE_DIR="$HOME/.config/dotfiles/profile"
-[ -f "$DOTFILES_PROFILE_DIR/zsh.zsh" ] && source "$DOTFILES_PROFILE_DIR/zsh.zsh"
-unset DOTFILES_PROFILE_DIR
-
 # ═══════════════════════════════════════════════════════════
 # Local Configuration
 # ═══════════════════════════════════════════════════════════

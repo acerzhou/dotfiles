@@ -146,45 +146,14 @@ class ManagementTests(unittest.TestCase):
         self.assertIn("requires macOS", output)
 
     def test_config_does_not_install_packages(self):
-        self.run_script("install.sh", "config", "--profile", "default",
-                        stdin="y\nn\n")
+        self.run_script("install.sh", "config", stdin="y\nn\n")
         self.assertTrue((self.home / ".zshrc").is_symlink())
         self.assertFalse((self.home / ".hammerspoon").exists())
-        profile = self.home / ".config/dotfiles/profile"
-        self.assertFalse(profile.exists())
-        self.assertEqual(self.run_script("install.sh", "profile").strip(),
-                         "default")
 
-    def test_profile_can_switch_without_relinking_default_config(self):
-        self.run_script("install.sh", "switch", "--profile", "personal")
-        profile = self.home / ".config/dotfiles/profile"
-        self.assertEqual(profile.resolve(), REPO / "profiles/personal")
-        self.assertEqual(self.run_script("install.sh", "profile").strip(),
-                         "personal")
-        self.assertFalse((self.home / ".zshrc").exists())
-
-        git_profile = subprocess.run(
-            ["git", "config", "--includes", "-f", str(REPO / "git/.gitconfig"),
-             "--get", "dotfiles.profile"],
-            env=self.env, text=True, capture_output=True,
-        )
-        self.assertEqual(git_profile.returncode, 0, git_profile.stderr)
-        self.assertEqual(git_profile.stdout.strip(), "personal")
-
-        if Path("/bin/zsh").exists():
-            shell_profile = subprocess.run(
-                ["/bin/zsh", "-dfc",
-                 f'source "{REPO}/zsh/.zshrc"; print -r -- "$DOTFILES_PROFILE"'],
-                env=self.env, text=True, capture_output=True,
-            )
-            self.assertEqual(shell_profile.returncode, 0, shell_profile.stderr)
-            self.assertEqual(shell_profile.stdout.strip(), "personal")
-
-        self.run_script("install.sh", "switch", "--profile", "default")
-        self.assertFalse(profile.exists())
-        self.run_script("install.sh", "switch", "--profile", "../default",
+    def test_config_rejects_package_profile_arguments(self):
+        self.run_script("install.sh", "config", "--profile", "personal",
                         expected=1)
-        self.assertFalse(profile.exists())
+        self.assertFalse((self.home / ".zshrc").exists())
 
     @unittest.skipUnless(
         Path("/bin/zsh").is_file()
@@ -243,10 +212,8 @@ class ManagementTests(unittest.TestCase):
 
     @unittest.skipUnless(Path("/usr/bin/vim").exists(), "Vim is unavailable")
     def test_vim_starts_without_optional_plugins(self):
-        self.run_script("install.sh", "switch", "--profile", "personal")
         result = subprocess.run(["/usr/bin/vim", "-i", "NONE", "-n", "-es", "-u",
                                  str(REPO / "vim/.vimrc"),
-                                 "-c", "if g:dotfiles_profile !=# 'personal' | cquit | endif",
                                  "-c", "qa!"],
                                 env=self.env, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

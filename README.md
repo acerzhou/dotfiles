@@ -38,9 +38,9 @@ make config
 make hammerspoon
 ```
 
-`make install` installs the canonical `brew/Brewfile`. Supplying `PROFILE=personal` installs that file first and then the small personal add-on manifest. `make config` links the default dotfiles; `PROFILE=personal` additionally activates the personal configuration overlay. It also sets ZSH as your default shell and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` separately.
+`make install` installs the canonical `brew/Brewfile`. Supplying `PROFILE=personal` installs that file first and then the small personal add-on manifest. `make config` always links the default dotfiles, sets ZSH as your default shell, and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` separately.
 
-Use `make profiles` to list choices, `make install-plan PROFILE=personal` to preview the base and add-ons, and `make switch PROFILE=personal` to enable the personal overlay without reinstalling or relinking anything. `make switch PROFILE=default` removes the overlay. Running `./install.sh` without arguments installs the default packages.
+Use `make profiles` to list package choices and `make install-plan PROFILE=personal` to preview the default packages plus personal additions. Running `./install.sh` without arguments installs only the default packages.
 
 ## 📁 Structure
 
@@ -53,9 +53,9 @@ dotfiles/
 ├── hammerspoon/       # Hammerspoon automation
 │   └── init.lua
 ├── iterm/             # iTerm2 configuration
-├── profiles/          # Optional additive configuration
+├── profiles/          # Optional package additions
 │   └── personal/
-├── script/            # Setup and maintenance scripts
+├── script/            # Focused package, configuration, and utility scripts
 ├── tmux/              # Tmux configuration
 ├── vim/               # Vim configuration
 ├── zsh/               # ZSH configuration
@@ -63,7 +63,7 @@ dotfiles/
 │   ├── .zprofile
 │   ├── .alias
 │   └── .tools
-└── install.sh         # Main installation script
+└── install.sh         # Thin command dispatcher
 ```
 
 ## 🛠️ Tools & Applications
@@ -79,9 +79,9 @@ The default Brewfile installs the applications below. Personal installs inherit 
 
 ### Profiles
 
-The root-level ZSH, Git, Tmux, Vim, and Hammerspoon files are the default configuration. An optional directory under `profiles/` loads afterward, and untracked machine-local files load last.
+The root-level ZSH, Git, Tmux, Vim, and Hammerspoon files are the single default configuration. Machine-local files load last where supported.
 
-An add-on profile can contain `Brewfile`, `zsh.zsh`, `gitconfig`, `tmux.conf`, `vimrc`, and `hammerspoon/init.lua`. See [`profiles/README.md`](profiles/README.md) for the loading contract.
+The personal profile contains only a `Brewfile` with packages added after the default manifest. See [`profiles/README.md`](profiles/README.md) for the loading contract.
 
 ### Command Line Tools
 
@@ -116,11 +116,11 @@ Install language runtimes separately; shell integrations load when available.
 
 ### ZSH Configuration
 
-Edit [`zsh/.zshrc`](zsh/.zshrc) for shared shell settings. Put situation-specific aliases and environment variables in `profiles/<name>/zsh.zsh`.
+Edit [`zsh/.zshrc`](zsh/.zshrc) for tracked shell settings. Put machine-specific aliases and environment variables in `~/.zshrc.local`.
 
 ### Git Configuration
 
-Store identity shared only by one situation in `profiles/<name>/gitconfig`. Keep secrets and machine-only identity in `~/.gitconfig.local`, which loads last:
+Keep secrets and machine-only identity in `~/.gitconfig.local`, which loads last:
 
 ```bash
 git config --file ~/.gitconfig.local user.name "Your Name"
@@ -129,15 +129,15 @@ git config --file ~/.gitconfig.local user.email "your.email@example.com"
 
 ### Vim Configuration
 
-Customize [`vim/.vimrc`](vim/.vimrc) for shared settings and `profiles/<name>/vimrc` for an overlay. Vim starts without optional plugins installed. To enable them, install [vim-plug](https://github.com/junegunn/vim-plug) and run `:PlugInstall` in Vim.
+Customize [`vim/.vimrc`](vim/.vimrc) for tracked settings and `~/.vimrc.local` for machine-specific overrides. Vim starts without optional plugins installed. To enable them, install [vim-plug](https://github.com/junegunn/vim-plug) and run `:PlugInstall` in Vim.
 
 ### Tmux Configuration
 
-Modify [`tmux/.tmux.conf`](tmux/.tmux.conf) for shared behavior and `profiles/<name>/tmux.conf` for profile-specific overrides.
+Modify [`tmux/.tmux.conf`](tmux/.tmux.conf) for tracked behavior and `~/.tmux.conf.local` for machine-specific overrides.
 
 ### Hammerspoon Configuration
 
-Edit [`hammerspoon/init.lua`](hammerspoon/init.lua) for shared automation and `profiles/<name>/hammerspoon/init.lua` for profile-specific shortcuts. See [hammerspoon/README.md](hammerspoon/README.md) for keybindings and features.
+Edit [`hammerspoon/init.lua`](hammerspoon/init.lua) for automation. See [hammerspoon/README.md](hammerspoon/README.md) for keybindings and features.
 
 ## 🔄 Updating
 
@@ -147,8 +147,8 @@ To update your dotfiles:
 cd ~/Repos/dotfiles
 git pull origin main
 
-# Reapply configuration using the desired profile
-make config PROFILE=personal
+# Reapply the default configuration
+make config
 
 # Reapply Hammerspoon configuration independently
 make hammerspoon
@@ -175,7 +175,7 @@ make test
 make check
 ```
 
-Tests use temporary home directories. `make check` reports every shared dotfile link and exits with a nonzero status if any link is missing or incorrect. Hammerspoon remains independent from these commands.
+Tests use temporary home directories. `make check` reports every default dotfile link and exits with a nonzero status if any link is missing or incorrect. Hammerspoon remains independent from these commands.
 
 ## 🔗 Useful Resources
 

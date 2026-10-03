@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-languages=$(echo "golang c cpp typescript rust" | tr " " "\n")
-core_util=$(echo "find xargs sed awk" | tr " " "\n")
+set -euo pipefail
 
-printf "%s\n%s\n" "$languages" "$core_util" | fzf
+command -v fzf >/dev/null 2>&1 || {
+    echo "fzf is required" >&2
+    exit 1
+}
+
+printf '%s\n' golang c cpp typescript rust find xargs sed awk | fzf
