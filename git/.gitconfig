@@ -27,7 +27,7 @@
 
 [alias]
 	# View abbreviated SHA, description, and history graph
-	l = log --pretty=oneline --graph --abbrev-commit
+	l = log --graph --pretty=format:'%C(yellow)%h %C(reset)%ad (%C(green)%cr%C(reset)) %C(cyan)%an%x09: %C(reset)%s' --date=format:'%Y-%m-%d %H:%M:%S'
 	
 	# View the current working tree status using the short format
 	s = status -s
