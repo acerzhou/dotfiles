@@ -28,33 +28,32 @@ This repository contains my personal dotfiles and automated setup scripts to qui
 git clone https://github.com/acerzhou/dotfiles.git ~/Repos/dotfiles
 cd ~/Repos/dotfiles
 
-# Install shared packages and one profile
+# Install the default packages
 make install
 
-# Link the shared configuration and activate the default profile
+# Link the default configuration
 make config
 
 # Set up Hammerspoon configuration separately
 make hammerspoon
 ```
 
-`make install` uses the `default` profile unless `PROFILE` is supplied. Every profile combines shared packages with its own applications. `make config PROFILE=<name>` links the shared dotfiles, activates that profile's configuration overlays, sets ZSH as your default shell, and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` to install the app via Homebrew if needed and link its configuration to `~/.hammerspoon`, backing up any existing configuration. Homebrew is required if the app is not already installed.
+`make install` installs the canonical `brew/Brewfile`. Supplying `PROFILE=personal` installs that file first and then the small personal add-on manifest. `make config` links the default dotfiles; `PROFILE=personal` additionally activates the personal configuration overlay. It also sets ZSH as your default shell and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` separately.
 
-Use `make profiles` to list profiles, `make install-plan PROFILE=personal` to preview packages, and `make switch PROFILE=personal` to change configuration without reinstalling or relinking anything. `make profile` prints the active profile. Running `./install.sh` without arguments installs the `default` profile.
+Use `make profiles` to list choices, `make install-plan PROFILE=personal` to preview the base and add-ons, and `make switch PROFILE=personal` to enable the personal overlay without reinstalling or relinking anything. `make switch PROFILE=default` removes the overlay. Running `./install.sh` without arguments installs the default packages.
 
 ## 📁 Structure
 
 ```
 dotfiles/
-├── brew/              # Shared Homebrew packages and compatibility Brewfile
+├── brew/              # Canonical default Homebrew manifest
 ├── git/               # Git configuration
 │   ├── .gitconfig
 │   └── .gitignore_global
 ├── hammerspoon/       # Hammerspoon automation
 │   └── init.lua
 ├── iterm/             # iTerm2 configuration
-├── profiles/          # Packages and configuration overlays by situation
-│   ├── default/
+├── profiles/          # Optional additive configuration
 │   └── personal/
 ├── script/            # Setup and maintenance scripts
 ├── tmux/              # Tmux configuration
@@ -71,18 +70,18 @@ dotfiles/
 
 ### GUI Applications
 
-The profile Brewfiles install the applications below. Hammerspoon uses its own installer.
+The default Brewfile installs the applications below. Personal installs inherit all of them before applying personal-only additions. Hammerspoon uses its own installer.
 
 | Profile | macOS applications |
 | --- | --- |
 | `default` | Visual Studio Code, iTerm2, Docker, Firefox, Google Chrome |
-| `personal` | Visual Studio Code, iTerm2, Firefox |
+| `personal` | Default applications plus personal additions (currently none) |
 
 ### Profiles
 
-The root-level ZSH, Git, Tmux, Vim, and Hammerspoon files form the shared base. The selected directory under `profiles/` loads afterward, and untracked machine-local files load last.
+The root-level ZSH, Git, Tmux, Vim, and Hammerspoon files are the default configuration. An optional directory under `profiles/` loads afterward, and untracked machine-local files load last.
 
-Each profile can contain `Brewfile`, `zsh.zsh`, `gitconfig`, `tmux.conf`, `vimrc`, and `hammerspoon/init.lua`. See [`profiles/README.md`](profiles/README.md) for the loading contract. Installing a different profile adds packages without removing previously installed applications.
+An add-on profile can contain `Brewfile`, `zsh.zsh`, `gitconfig`, `tmux.conf`, `vimrc`, and `hammerspoon/init.lua`. See [`profiles/README.md`](profiles/README.md) for the loading contract.
 
 ### Command Line Tools
 

@@ -10,7 +10,7 @@ help:
 	@echo "  make install PROFILE=<name> - Install packages (default: default)"
 	@echo "  make install-plan PROFILE=<name> - Preview packages without installing"
 	@echo "  make profiles      - List available profiles"
-	@echo "  make config PROFILE=<name> - Configure shared dotfiles + profile"
+	@echo "  make config PROFILE=<name> - Configure defaults + optional profile"
 	@echo "  make switch PROFILE=<name> - Change the active config profile"
 	@echo "  make profile       - Show the active config profile"
 	@echo "  make hammerspoon   - Install and configure Hammerspoon (macOS)"

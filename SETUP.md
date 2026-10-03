@@ -12,7 +12,7 @@ make config
 make hammerspoon
 ```
 
-`make install` uses Homebrew to install shared packages plus the selected profile. Available profiles are `default` and `personal`; omitting `PROFILE` selects `default`. It does not link configuration files.
+`make install` installs the canonical `brew/Brewfile`. `PROFILE=personal` installs the default manifest first and then the personal additions. It does not link configuration files.
 
 Preview or list profiles before installing:
 
@@ -21,9 +21,9 @@ make profiles
 make install-plan PROFILE=personal
 ```
 
-Shared packages are in `brew/Brewfile.common`, with profile-specific packages in `profiles/<name>/Brewfile`.
+Default packages are in `brew/Brewfile`; optional additions are in `profiles/<name>/Brewfile`.
 
-`make config PROFILE=<name>` links the shared ZSH, Vim, Tmux, and Git configuration, activates the selected overlays, backs up replaced paths, sets ZSH as your default shell, and offers SSH key creation. The active profile is a symlink at `~/.config/dotfiles/profile`.
+`make config` links the default ZSH, Vim, Tmux, and Git configuration, backs up replaced paths, sets ZSH as your default shell, and offers SSH key creation. `PROFILE=personal` also creates `~/.config/dotfiles/profile` as a symlink to the personal overlay; selecting `default` removes that optional link.
 
 ```bash
 # Change overlays later without reinstalling packages or relinking dotfiles
@@ -32,7 +32,7 @@ make profile
 exec zsh
 ```
 
-Shared configuration loads first, the active profile loads second, and untracked machine-local files load last. See [`profiles/README.md`](profiles/README.md) for supported overlay files. Hammerspoon still has its own installer at `hammerspoon/install.sh`.
+Default configuration loads first, an active add-on profile loads second, and untracked machine-local files load last. See [`profiles/README.md`](profiles/README.md) for supported overlay files. Hammerspoon still has its own installer at `hammerspoon/install.sh`.
 
 If Homebrew's ZSH appears first in `PATH`, configuration still uses a registered login shell from `/etc/shells` (normally `/bin/zsh` on macOS). If ZSH is already your default, it leaves the setting unchanged.
 
@@ -60,10 +60,10 @@ For Hammerspoon, open the app, enable Accessibility access when prompted, and re
 
 | Command | Purpose |
 | --- | --- |
-| `make install [PROFILE=<name>]` | Install shared and selected-profile packages |
+| `make install [PROFILE=<name>]` | Install default packages and optional additions |
 | `make install-plan [PROFILE=<name>]` | Preview packages without installing |
 | `make profiles` | List available profiles |
-| `make config [PROFILE=<name>]` | Apply shared configuration and activate a profile |
+| `make config [PROFILE=<name>]` | Apply default configuration and an optional overlay |
 | `make switch PROFILE=<name>` | Switch configuration overlays only |
 | `make profile` | Show the active profile |
 | `make install-links` | Apply shared symlinks only |
@@ -77,7 +77,7 @@ For Hammerspoon, open the app, enable Accessibility access when prompted, and re
 | `make clean` | Keep the five newest backups |
 | `make test` | Run isolated regression tests |
 
-You can run `bash install.sh install --profile personal`, `bash install.sh config --profile default`, or `bash install.sh switch --profile personal` directly. The legacy setup scripts use the `default` profile unless the `PROFILE` environment variable is set.
+You can run `bash install.sh install --profile personal`, `bash install.sh config --profile default`, or `bash install.sh switch --profile personal` directly. Omitting `--profile` uses the default configuration with no overlay.
 
 ## Backups and Restore
 

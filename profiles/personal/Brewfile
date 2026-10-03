@@ -1,4 +1,1 @@
-# macOS apps for the personal profile. Shared tools: brew/Brewfile.common
-cask "visual-studio-code"
-cask "iterm2"
-cask "firefox"
+# Personal-only packages. The default brew/Brewfile is always installed first.

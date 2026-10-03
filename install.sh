@@ -78,13 +78,16 @@ validate_profile() {
         error "Invalid profile name: $INSTALL_PROFILE"
         return 1
     fi
-    PROFILE_DIR="$DOTFILES_DIR/profiles/$INSTALL_PROFILE"
-    if [ ! -f "$PROFILE_DIR/Brewfile" ]; then
-        error "Unknown or incomplete profile: $INSTALL_PROFILE. Run make profiles."
-        return 1
+    PROFILE_DIR=""
+    if [ "$INSTALL_PROFILE" != default ]; then
+        PROFILE_DIR="$DOTFILES_DIR/profiles/$INSTALL_PROFILE"
+        if [ ! -f "$PROFILE_DIR/Brewfile" ]; then
+            error "Unknown or incomplete profile: $INSTALL_PROFILE. Run make profiles."
+            return 1
+        fi
     fi
-    if [ ! -f "$DOTFILES_DIR/brew/Brewfile.common" ]; then
-        error "Shared Brewfile is missing"
+    if [ ! -f "$DOTFILES_DIR/brew/Brewfile" ]; then
+        error "Default Brewfile is missing"
         return 1
     fi
 }
@@ -92,6 +95,7 @@ validate_profile() {
 list_profiles() {
     local directory
     echo "Available profiles (default: default):"
+    echo "  default"
     for directory in "$DOTFILES_DIR"/profiles/*; do
         if [ -f "$directory/Brewfile" ]; then
             printf '  %s\n' "${directory##*/}"
@@ -105,6 +109,16 @@ activate_profile() {
 
     validate_profile
     mkdir -p "$(dirname "$profile_link")"
+    if [ "$INSTALL_PROFILE" = default ]; then
+        if [ -L "$profile_link" ]; then
+            rm "$profile_link"
+        elif [ -e "$profile_link" ]; then
+            error "Cannot activate default: $profile_link exists and is not a symlink"
+            return 1
+        fi
+        success "Active profile: default"
+        return 0
+    fi
     if [ -L "$profile_link" ]; then
         current_target="$(readlink "$profile_link")"
         if [ "$current_target" = "$PROFILE_DIR" ]; then
@@ -125,7 +139,7 @@ show_active_profile() {
     local profile_link="$HOME/.config/dotfiles/profile"
     local target
     if [ ! -L "$profile_link" ]; then
-        echo "No active configuration profile"
+        echo "default"
         return 0
     fi
     target="$(readlink "$profile_link")"
@@ -139,11 +153,13 @@ show_active_profile() {
     esac
 }
 
-# Install shared packages plus the selected profile.
+# Install the default packages plus the selected optional overlay.
 install_packages() {
     info "Installing packages via Homebrew..."
-    brew bundle --file="$DOTFILES_DIR/brew/Brewfile.common"
-    brew bundle --file="$PROFILE_DIR/Brewfile"
+    brew bundle --file="$DOTFILES_DIR/brew/Brewfile"
+    if [ "$INSTALL_PROFILE" != default ]; then
+        brew bundle --file="$PROFILE_DIR/Brewfile"
+    fi
     success "Homebrew packages installed"
 }
 
@@ -247,11 +263,11 @@ usage() {
     echo "Usage: $0 install [--profile NAME] [--dry-run]"
     echo "       $0 config|switch [--profile NAME]"
     echo "       $0 [profile|hammerspoon|profiles|help]"
-    echo "  install     Install shared and profile packages (default: default)"
+    echo "  install     Install default packages and optional profile additions"
     echo "  --profile   Select a package/config profile (default: PROFILE environment variable or default)"
     echo "  --dry-run   Show package manifests without installing anything"
     echo "  profiles    List available profiles"
-    echo "  config      Configure shared dotfiles and activate a profile"
+    echo "  config      Configure default dotfiles and an optional profile"
     echo "  switch      Change the active profile without relinking"
     echo "  profile     Show the active configuration profile"
     echo "  hammerspoon Install and configure Hammerspoon"
@@ -318,10 +334,12 @@ main() {
         install)
             info "Install profile: $INSTALL_PROFILE"
             if [ "$DRY_RUN" = true ]; then
-                info "Shared packages: brew/Brewfile.common"
-                cat "$DOTFILES_DIR/brew/Brewfile.common"
-                info "Profile packages: profiles/$INSTALL_PROFILE/Brewfile"
-                cat "$PROFILE_DIR/Brewfile"
+                info "Default packages: brew/Brewfile"
+                cat "$DOTFILES_DIR/brew/Brewfile"
+                if [ "$INSTALL_PROFILE" != default ]; then
+                    info "Additional packages: profiles/$INSTALL_PROFILE/Brewfile"
+                    cat "$PROFILE_DIR/Brewfile"
+                fi
                 return 0
             fi
             install_homebrew

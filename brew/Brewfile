@@ -1,4 +1,36 @@
-# Compatibility entry point: installs the default profile.
-# For the personal profile, use make install PROFILE=personal.
-eval File.read(File.join(__dir__, "Brewfile.common")), binding, File.join(__dir__, "Brewfile.common")
-eval File.read(File.join(__dir__, "../profiles/default/Brewfile")), binding, File.join(__dir__, "../profiles/default/Brewfile")
+# Default Homebrew packages. Install with: make install
+
+# Shell and terminal
+brew "zsh"
+brew "tmux"
+brew "fzf"
+brew "autojump"
+
+# Version control
+brew "git"
+brew "gh"
+
+# Development tools
+brew "vim"
+brew "htop"
+brew "tree"
+brew "wget"
+brew "curl"
+brew "shellcheck"
+
+# Text processing and navigation
+brew "jq"
+brew "yq"
+brew "bat"
+brew "ripgrep"
+brew "fd"
+
+# Database tools
+brew "libpq"
+
+# Applications
+cask "visual-studio-code"
+cask "iterm2"
+cask "docker"
+cask "firefox"
+cask "google-chrome"

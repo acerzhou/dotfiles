@@ -30,8 +30,8 @@ Use this file as the default operating contract for AI-assisted work in this rep
 - `symlink-manager.sh`: install, check, and remove managed dotfile links.
 - `backup.sh`: snapshot, restore, list, and clean backups.
 - `Makefile`: supported user commands.
-- `brew/`: shared package manifest.
-- `profiles/`: `default` and `personal` package/config overlays; see `profiles/README.md`.
+- `brew/Brewfile`: canonical default package manifest.
+- `profiles/personal/`: personal-only package/config additions; see `profiles/README.md`.
 - `zsh/`, `git/`, `tmux/`, `vim/`: shared dotfiles.
 - `hammerspoon/`: separately installed macOS automation.
 - `tests/test_management.py`: isolated regression tests using temporary home directories.

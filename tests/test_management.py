@@ -113,7 +113,7 @@ class ManagementTests(unittest.TestCase):
                                      expected=1)
             self.assertIn("profile", output.lower())
 
-    def test_macos_profile_installs_shared_and_selected_brewfiles(self):
+    def test_personal_install_uses_default_and_additional_brewfiles(self):
         bins = self.home / "bin"
         bins.mkdir()
         log = self.home / "brew.log"
@@ -124,9 +124,21 @@ class ManagementTests(unittest.TestCase):
                         BREW_LOG=str(log))
         self.run_script("install.sh", "install", "--profile", "personal")
         calls = log.read_text()
-        self.assertIn("bundle --file=" + str(REPO / "brew/Brewfile.common"), calls)
+        self.assertIn("bundle --file=" + str(REPO / "brew/Brewfile"), calls)
         self.assertIn("bundle --file=" + str(REPO / "profiles/personal/Brewfile"), calls)
-        self.assertNotIn("profiles/default/Brewfile", calls)
+
+    def test_default_install_uses_only_the_canonical_brewfile(self):
+        bins = self.home / "bin"
+        bins.mkdir()
+        log = self.home / "brew.log"
+        brew = bins / "brew"
+        brew.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$BREW_LOG"\n')
+        brew.chmod(0o755)
+        self.env.update(OSTYPE="darwin", PATH=f"{bins}:/usr/bin:/bin",
+                        BREW_LOG=str(log))
+        self.run_script("install.sh", "install")
+        self.assertEqual(log.read_text().strip(),
+                         "bundle --file=" + str(REPO / "brew/Brewfile"))
 
     def test_installer_rejects_unsupported_platforms(self):
         self.env["OSTYPE"] = "freebsd"
@@ -139,9 +151,11 @@ class ManagementTests(unittest.TestCase):
         self.assertTrue((self.home / ".zshrc").is_symlink())
         self.assertFalse((self.home / ".hammerspoon").exists())
         profile = self.home / ".config/dotfiles/profile"
-        self.assertEqual(profile.resolve(), REPO / "profiles/default")
+        self.assertFalse(profile.exists())
+        self.assertEqual(self.run_script("install.sh", "profile").strip(),
+                         "default")
 
-    def test_profile_can_switch_without_relinking_shared_config(self):
+    def test_profile_can_switch_without_relinking_default_config(self):
         self.run_script("install.sh", "switch", "--profile", "personal")
         profile = self.home / ".config/dotfiles/profile"
         self.assertEqual(profile.resolve(), REPO / "profiles/personal")
@@ -167,10 +181,10 @@ class ManagementTests(unittest.TestCase):
             self.assertEqual(shell_profile.stdout.strip(), "personal")
 
         self.run_script("install.sh", "switch", "--profile", "default")
-        self.assertEqual(profile.resolve(), REPO / "profiles/default")
+        self.assertFalse(profile.exists())
         self.run_script("install.sh", "switch", "--profile", "../default",
                         expected=1)
-        self.assertEqual(profile.resolve(), REPO / "profiles/default")
+        self.assertFalse(profile.exists())
 
     @unittest.skipUnless(
         Path("/bin/zsh").is_file()
