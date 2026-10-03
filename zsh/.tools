@@ -6,24 +6,26 @@
 # Usage: weather [city]
 function weather() {
     local city="${1:-}"
-    curl -s "wttr.in/${city}?format=3"
+    curl -fsS "https://wttr.in/${city}?format=3"
 }
 
 function weatherfull() {
     local city="${1:-}"
-    curl "wttr.in/${city}"
+    curl -fsS "https://wttr.in/${city}"
 }
 
 # ---- IP Information ----------------------------------------------
 # Usage: ipinfo [ip-address]
 function ipinfo() {
-    curl "ipinfo.io/${1:-}"
+    curl -fsS "https://ipinfo.io/${1:-}"
 }
 
 function myip() {
-    echo "Public IP: $(curl -s ifconfig.me)"
+    echo "Public IP: $(curl -fsS https://ifconfig.me)"
     if command -v ipconfig &> /dev/null; then
         echo "Local IP:  $(ipconfig getifaddr en0 2>/dev/null || echo 'N/A')"
+    elif command -v hostname &> /dev/null; then
+        echo "Local IP:  $(hostname -I 2>/dev/null | awk '{print $1}' || echo 'N/A')"
     fi
 }
 
@@ -132,7 +134,7 @@ function ff() {
 }
 
 # Find directory by name
-function fd() {
+function fdir() {
     find . -type d -iname "*$1*"
 }
 
@@ -224,4 +226,3 @@ function backup() {
 function duf() {
     du -sh * | sort -h
 }
-

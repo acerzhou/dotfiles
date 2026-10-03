@@ -1,7 +1,6 @@
-ln ~/Repos/dotfiles/zsh/.zshrc ~/.zshrc
-ln ~/Repos/dotfiles/zsh/.zprofile ~/.zprofile
+#!/usr/bin/env bash
 
-mkdir ~/.zsh
-ln ~/Repos/dotfiles/zsh/.alias ~/.zsh/.alias
-ln ~/Repos/dotfiles/zsh/.tools ~/.zsh/.tools
-
+# Compatibility entry point for general dotfile symlinks.
+set -euo pipefail
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+bash "$DOTFILES_DIR/symlink-manager.sh" install

@@ -1,267 +1,86 @@
-# Quick Setup Guide
+# Setup Guide
 
-## 🚀 New Machine Setup (5 minutes)
-
-### 1. Clone Repository
+## New Machine
 
 ```bash
-# Create Repos directory if it doesn't exist
-mkdir -p ~/Repos
-
-# Clone dotfiles
-git clone https://github.com/yourusername/dotfiles.git ~/Repos/dotfiles
+git clone https://github.com/acerzhou/dotfiles.git ~/Repos/dotfiles
 cd ~/Repos/dotfiles
-```
-
-### 2. Run Installation
-
-```bash
-# Full installation (recommended for new machines)
 make install
+make config
 
-# Or run the script directly
-./install.sh
+# macOS: install and configure Hammerspoon separately
+make hammerspoon
 ```
 
-The installer will:
+`make install` installs Homebrew and the Brewfile packages on macOS, or core command-line tools via apt on Ubuntu. It does not link configuration files.
 
-- ✅ Backup your existing dotfiles
-- ✅ Install Homebrew (macOS) or update apt (Linux)
-- ✅ Install packages from Brewfile
-- ✅ Create symlinks for all configurations
-- ✅ Set ZSH as default shell
-- ✅ Optionally create an SSH key during setup
+`make config` links ZSH, Vim, Tmux, and Git configuration, backs up replaced paths, sets ZSH as your default shell, and offers SSH key creation. Hammerspoon has its own installer at `hammerspoon/install.sh`.
 
-### 3. Customize Git Config
+Set your Git identity in a local file to avoid changing tracked dotfiles:
 
 ```bash
-# Set your name and email
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-```
-
-### 4. Restart Terminal
-
-```bash
-# Restart your terminal or reload ZSH
+git config --file ~/.gitconfig.local user.name "Your Name"
+git config --file ~/.gitconfig.local user.email "your.email@example.com"
 exec zsh
 ```
 
----
+The shared Git configuration includes `~/.gitconfig.local` automatically. Personal shell settings belong in `~/.zshrc.local`, loaded by the interactive shell.
 
-## 🔧 Individual Component Installation
+## Optional Setup
 
-### Install Only Symlinks (No Packages)
+The shell configuration works without Oh My Zsh. Install language runtimes and version managers separately; NVM, jenv, pyenv, Go, and Rust integrations load when available.
+
+Vim starts with built-in settings when plugins are missing. Install [vim-plug](https://github.com/junegunn/vim-plug), then run `:PlugInstall` in Vim to enable the configured plugins. CoC also requires Node.js.
+
+For iTerm2, import `iterm/iterm2-config.json` using Settings → Profiles → Other Actions → Import JSON Profiles. This file is a profile export.
+
+For Hammerspoon, open the app, enable Accessibility access when prompted, and reload its configuration from the menu. See [hammerspoon/README.md](hammerspoon/README.md) for shortcuts and optional Karabiner setup.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `make install` | Install packages |
+| `make config` | Apply general configuration and shell setup |
+| `make install-links` | Apply general symlinks only |
+| `make hammerspoon` | Install and configure Hammerspoon on macOS |
+| `make check` | Report all managed link statuses |
+| `make backup` | Snapshot current dotfiles |
+| `make list-backups` | List available backups |
+| `make restore BACKUP=<name>` | Restore a backup after confirmation |
+| `make uninstall` | Remove links pointing to this repository |
+| `make update` | Pull changes and reapply general configuration |
+| `make clean` | Keep the five newest backups |
+| `make test` | Run isolated regression tests |
+
+You can run `bash install.sh install`, `bash install.sh config`, or `bash hammerspoon/install.sh` directly. The legacy `script/mac-set-up.sh`, `script/ubuntu-set-up.sh`, and `zsh/set-up.sh` delegate to the maintained scripts.
+
+## Backups and Restore
+
+All new backups live in `~/.dotfiles-backups/<backup-name>/`. Installer backups hold replaced paths; manual snapshots copy the contents of linked configuration. Restore creates a safety snapshot and supports partial installer backups without removing unrelated shell files.
 
 ```bash
-make install-links
-# or
-./symlink-manager.sh install
+make list-backups
+make restore BACKUP=20261003-120000-AbCd12
 ```
 
-### Install Only Homebrew Packages
+Use the exact name shown by `make list-backups`. Backups from older installers under `~/.dotfiles-backup-*` are left in place; restore those manually if needed.
+
+## Troubleshooting
 
 ```bash
-brew bundle --file=brew/Brewfile
-```
-
-### Check Symlink Status
-
-```bash
+# Inspect every managed link; missing/incorrect links produce a nonzero exit
 make check
-# or
-./symlink-manager.sh check
-```
 
----
+# Reapply general links and Hammerspoon independently
+make install-links
+make hammerspoon
 
-## 📦 Recommended Additional Setup
-
-### 1. Install Oh My Zsh (Optional but Recommended)
-
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-### 2. Install Node.js via nvm
-
-```bash
-# Install nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-
-# Install latest LTS
-nvm install --lts
-nvm use --lts
-```
-
-### 3. Install Python via pyenv (Optional)
-
-```bash
-# macOS
-brew install pyenv
-
-# Install Python
-pyenv install 3.11.0
-pyenv global 3.11.0
-```
-
-### 4. Configure iTerm2 (macOS)
-
-1. Open iTerm2
-2. Go to Preferences → General → Preferences
-3. Check "Load preferences from a custom folder"
-4. Select `~/Repos/dotfiles/iterm`
-
----
-
-## 🔄 Keeping Dotfiles Updated
-
-### Pull Latest Changes
-
-```bash
-cd ~/Repos/dotfiles
-make update
-
-# Or manually
-git pull origin main
-./install.sh
-```
-
-### Backup Before Major Changes
-
-```bash
-make backup
-# Your files will be backed up to ~/.dotfiles-backups/
-```
-
----
-
-## 🛠️ Customization
-
-### Add Personal Aliases
-
-Create `~/.zshrc.local` for personal customization (not tracked in git):
-
-```bash
-# ~/.zshrc.local
-export MY_CUSTOM_VAR="value"
-alias myalias='command'
-```
-
-### Add Personal Git Config
-
-Use `~/.gitconfig.local` for machine-specific settings:
-
-```bash
-# ~/.gitconfig.local
-[user]
-    signingkey = YOUR_GPG_KEY
-[commit]
-    gpgsign = true
-```
-
-Then in your `.gitconfig`:
-
-```ini
-[include]
-    path = ~/.gitconfig.local
-```
-
----
-
-## 📋 Common Commands
-
-### Using Make
-
-```bash
-make help          # Show all available commands
-make install       # Full installation
-make check         # Check symlink status
-make backup        # Create backup
-make restore       # Restore from backup
-make update        # Update dotfiles
-make clean         # Clean old backups
-```
-
-### Using Scripts Directly
-
-```bash
-./install.sh                  # Install everything
-./symlink-manager.sh check    # Check symlinks
-./symlink-manager.sh install  # Install symlinks
-./symlink-manager.sh uninstall # Remove symlinks
-./backup.sh backup            # Create backup
-./backup.sh list              # List backups
-./backup.sh restore <date>    # Restore backup
-./backup.sh cleanup           # Clean old backups
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Symlinks Not Working?
-
-```bash
-# Check what's wrong
-./symlink-manager.sh check
-
-# Force reinstall
-./symlink-manager.sh uninstall
-./symlink-manager.sh install
-```
-
-### ZSH Not Loading Properly?
-
-```bash
-# Check for syntax errors
+# Check shell syntax
 zsh -n ~/.zshrc
 
-# Reload configuration
+# Reload interactive settings
 source ~/.zshrc
 ```
 
-### Permission Issues?
-
-```bash
-# Make scripts executable
-make chmod
-```
-
-### Restore Original Files
-
-```bash
-# List available backups
-./backup.sh list
-
-# Restore from specific backup
-./backup.sh restore 20260123-140530
-```
-
----
-
-## 📚 Learning Resources
-
-- [The Art of Command Line](https://github.com/jlevy/the-art-of-command-line)
-- [ZSH Documentation](https://zsh.sourceforge.io/Doc/)
-- [Awesome Dotfiles](https://github.com/webpro/awesome-dotfiles)
-- [Git Aliases](https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases)
-
----
-
-## 🤝 Contributing
-
-Found a useful alias or function? Add it to your fork and share!
-
-1. Edit the appropriate file ([zsh/.alias](zsh/.alias) or [zsh/.tools](zsh/.tools))
-2. Test your changes
-3. Commit and push
-
----
-
-## 💡 Tips
-
-- Use `fzf` for fuzzy finding: `Ctrl+R` for history, `Ctrl+T` for files
-- Use `autojump` with `j <directory>` to jump to frequently used directories
-- Check out all Git aliases with: `git config --get-regexp alias`
-- Use `tldr <command>` instead of `man <command>` for quick examples
+`make uninstall` removes general dotfile links that point to this repository. It preserves unrelated files, links, and the separately managed Hammerspoon configuration. The optional `script/*-clean-up.sh` scripts remove applications explicitly listed in those files; review them before running.

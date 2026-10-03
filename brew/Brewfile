@@ -3,11 +3,7 @@
 # Install with: brew bundle --file=brew/Brewfile
 # ═══════════════════════════════════════════════════════════
 
-# Taps
-tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/core"
-tap "homebrew/cask-versions"
+# Core formulae, casks, and Bundle are provided by Homebrew.
 
 # ═══════════════════════════════════════════════════════════
 # Command Line Tools

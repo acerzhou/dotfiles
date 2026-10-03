@@ -24,9 +24,7 @@ SAVEHIST=10000
 bindkey -e  # Emacs key bindings
 
 # ---- Terminal Configuration --------------------------------------
-export TERM=xterm-256color
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
+export LANG="${LANG:-en_US.UTF-8}"
 
 # ---- Editor Configuration ----------------------------------------
 export EDITOR=vim
@@ -61,17 +59,31 @@ RPROMPT='%F{8}%*%f'
 # Development Tools Configuration
 # ═══════════════════════════════════════════════════════════
 
+# ---- Homebrew (macOS) --------------------------------------------
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [ -x /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+fi
+
 # ---- Node.js (nvm) -----------------------------------------------
 export NVM_DIR="$HOME/.nvm"
-if [ -s "/usr/local/opt/nvm/nvm.sh" ]; then
-    \. "/usr/local/opt/nvm/nvm.sh"
-    \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm" 2>/dev/null
-fi
+for nvm_script in "$NVM_DIR/nvm.sh" /opt/homebrew/opt/nvm/nvm.sh /usr/local/opt/nvm/nvm.sh; do
+    if [ -s "$nvm_script" ]; then
+        source "$nvm_script"
+        break
+    fi
+done
+unset nvm_script
 
 # ---- Java (jenv) -------------------------------------------------
 if [ -d "$HOME/.jenv" ]; then
     export PATH="$HOME/.jenv/bin:$PATH"
-    eval "$(jenv init -)"
+    if command -v jenv >/dev/null 2>&1; then
+        eval "$(jenv init -)"
+    fi
 fi
 
 # ---- Python (pyenv) ----------------------------------------------
@@ -112,22 +124,23 @@ fi
 if command -v fzf &> /dev/null; then
     [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
     export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    if command -v fd >/dev/null 2>&1; then
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    fi
 fi
 
 # ---- autojump ----------------------------------------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    [ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
+    for autojump_script in /opt/homebrew/etc/profile.d/autojump.sh /usr/local/etc/profile.d/autojump.sh; do
+        if [ -f "$autojump_script" ]; then
+            source "$autojump_script"
+            break
+        fi
+    done
+    unset autojump_script
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     [ -f /usr/share/autojump/autojump.sh ] && . /usr/share/autojump/autojump.sh
-fi
-
-# ---- Homebrew (macOS) --------------------------------------------
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [ -f /opt/homebrew/bin/brew ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
 fi
 
 # ═══════════════════════════════════════════════════════════
@@ -151,6 +164,7 @@ fi
 # Custom PATH additions
 # ═══════════════════════════════════════════════════════════
 
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/bin:$PATH"
+typeset -U path
+path=("$HOME/.local/bin" "$HOME/bin" $path)
+export PATH
 

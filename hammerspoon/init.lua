@@ -13,7 +13,6 @@ local textExpansion = require("modules.text-expansion")
 local appLauncher = require("modules.app-launcher")
 local layouts = require("modules.layouts")
 local hyperKey = require("modules.hyper-key")
-local weather = require("modules.weather")
 local system = require("modules.system")
 
 -- Initialize modules
@@ -23,7 +22,6 @@ textExpansion.init()
 appLauncher.init()
 layouts.init()
 hyperKey.init(windowMgmt.moveWindow, appLauncher.open_app)
-weather.init()
 system.init()
 
 -- Startup notification

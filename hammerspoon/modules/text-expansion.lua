@@ -17,7 +17,7 @@ local expansions = {
 }
 
 function M.init()
-    local expansionWatcher = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
+    M.expansionWatcher = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
         local char = event:getCharacters()
         if not char or char == "" then
             return false
@@ -28,7 +28,8 @@ function M.init()
 
         for trigger, replacement in pairs(expansions) do
             if currentWord:sub(-#trigger) == trigger then
-                for _ = 1, #trigger do
+                -- The final trigger key is suppressed by returning true below.
+                for _ = 1, #trigger - 1 do
                     hs.eventtap.keyStroke({}, "delete", 0)
                 end
 
@@ -46,7 +47,7 @@ function M.init()
 
         return false
     end)
-    expansionWatcher:start()
+    M.expansionWatcher:start()
 end
 
 function M.addExpansion(trigger, replacement)

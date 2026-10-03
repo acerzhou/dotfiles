@@ -1,11 +1,11 @@
+set nocompatible
 syntax on
-colo pablo
+colorscheme pablo
 
 set number
 set laststatus=2
 set relativenumber
 set ruler
-set nocompatible
 set showmode
 set showcmd
 set mouse=a
@@ -16,6 +16,7 @@ set smartindent
 set encoding=utf-8
 set fileencoding=utf-8
 set undofile " Maintain undo history between sessions
+call mkdir(expand("~/.vim/undodir"), "p")
 set undodir=~/.vim/undodir
 set showmatch
 set hlsearch
@@ -31,7 +32,8 @@ set wildmode=longest:list,full
 set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx
 set splitright
 set swapfile
-set dir=~/tmp
+call mkdir(expand("~/.vim/swap"), "p")
+set directory=~/.vim/swap//
 set autowrite
 set cursorline
 
@@ -49,10 +51,7 @@ set backspace=indent,eol,start
 " start   allow backspacing over the start of insert; CTRL-W and CTRL-U
 "        stop once at the start of insert.
 
-filetype on
 filetype plugin indent on
-filetype plugin on
-filetype indent on
 
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
 autocmd Filetype go setlocal tabstop=4 shiftwidth=4 softtabstop=4
@@ -60,6 +59,7 @@ autocmd Filetype go setlocal tabstop=4 shiftwidth=4 softtabstop=4
 " sw - when indenting with '>', use 4 spaces width
 " sts - control <tab> and <bs> keys to match tabstop
 
+if !empty(globpath(&runtimepath, "autoload/plug.vim"))
 call plug#begin()
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'junegunn/fzf', {'do': { ->fzf#install()}}
@@ -75,6 +75,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'tpope/vim-surround'
 call plug#end()
+endif
 
 " set up leader
 let mapleader = ";"
@@ -82,7 +83,9 @@ let mapleader = ";"
 " Set theme`
 set termguicolors     " enable true colors support
 let ayucolor="mirage"  " for light version of theme
-colorscheme ayu
+if !empty(globpath(&runtimepath, "colors/ayu.vim"))
+    colorscheme ayu
+endif
 
 " set up fzf
 nnoremap <C-p> :GFiles<Cr>
@@ -120,7 +123,8 @@ let g:gitgutter_sign_removed = '-'
 let g:gitgutter_sign_removed_first_line = '-'
 let g:gitgutter_sign_modified_removed = '-'
 
-" Coc plugin config
+" Coc plugin config (only when the plugin is installed)
+if !empty(globpath(&runtimepath, "autoload/coc.vim"))
 let g:coc_global_extensions = [
   \ 'coc-tsserver'
   \ ]
@@ -287,4 +291,4 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
-
+endif

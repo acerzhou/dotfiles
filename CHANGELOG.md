@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-03 - Repository Cleanup
+
+- Fixed backup restore for hidden files, partial installer backups, and empty homes.
+- Added unique backup names, consistent backup storage, and portable retention of the newest five backups.
+- Made symlink management compatible with macOS Bash 3.2, idempotent, and independent of Hammerspoon installation.
+- Consolidated general symlink setup and retained legacy setup commands as wrappers.
+- Installed core CLI tools on Ubuntu and made newly installed Homebrew available to the current process.
+- Removed obsolete Homebrew taps and corrected optional application and iTerm2 setup documentation.
+- Consolidated shell startup, removed conflicting aliases, and moved Git identity into local configuration.
+- Guarded optional Vim plugins and created persistent undo and swap directories.
+- Retained Hammerspoon timer and watcher references and corrected text expansion deletion counts.
+- Added isolated backup, restore, link, and installer regression tests through `make test`.
+
+## 2026-10-03 - Separate Installation and Configuration
+
+- `make install` installs packages only.
+- `make config` applies general dotfile configuration without installing packages.
+- `make hammerspoon` runs the standalone `hammerspoon/install.sh` to install and configure Hammerspoon independently on macOS, backing up existing configuration.
+- `install.sh` supports matching subcommands and defaults to package installation.
+- `make update` pulls changes and reapplies general configuration.
+- Removed the Hammerspoon weather menubar module and its documentation.
+
+
 ## 2026-01-23 - Major Repository Improvements
 
 ### 🎉 New Features

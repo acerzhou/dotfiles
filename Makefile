@@ -1,68 +1,78 @@
-.PHONY: help install uninstall backup restore check update clean
+.PHONY: help install config hammerspoon install-links uninstall backup restore list-backups check update clean chmod test
 
 # Default target
 help:
 	@echo "Dotfiles Management"
 	@echo ""
 	@echo "Usage:"
-	@echo "  make install       - Install dotfiles (symlinks + packages)"
+	@echo "  make install       - Install packages (Homebrew/apt)"
+	@echo "  make config        - Configure general dotfiles"
+	@echo "  make hammerspoon   - Install and configure Hammerspoon (macOS)"
+	@echo "  make install-links - Link general dotfiles without shell setup"
 	@echo "  make uninstall     - Remove symlinks"
 	@echo "  make backup        - Backup current dotfiles"
-	@echo "  make restore       - Restore from backup"
+	@echo "  make restore       - Restore from backup (BACKUP=<name>)"
+	@echo "  make list-backups  - List available backups"
 	@echo "  make check         - Check symlink status"
-	@echo "  make update        - Pull latest changes and reinstall"
+	@echo "  make update        - Pull latest changes and reapply general config"
+	@echo "  make test          - Run isolated regression tests"
 	@echo "  make clean         - Clean old backups"
 	@echo ""
 
-# Install everything
+# Install packages
 install:
-	@chmod +x install.sh symlink-manager.sh backup.sh
-	@./install.sh
+	@bash ./install.sh install
+
+# Configure general dotfiles
+config:
+	@bash ./install.sh config
+
+# Install and configure Hammerspoon independently
+hammerspoon:
+	@bash ./hammerspoon/install.sh
 
 # Install only symlinks (no packages)
 install-links:
-	@chmod +x symlink-manager.sh
-	@./symlink-manager.sh install
+	@bash ./symlink-manager.sh install
 
 # Uninstall symlinks
 uninstall:
-	@chmod +x symlink-manager.sh
-	@./symlink-manager.sh uninstall
+	@bash ./symlink-manager.sh uninstall
 
 # Backup current configuration
 backup:
-	@chmod +x backup.sh
-	@./backup.sh backup
+	@bash ./backup.sh backup
 
 # Restore from backup
 restore:
-	@chmod +x backup.sh
-	@./backup.sh restore
+	@bash ./backup.sh restore "$(BACKUP)"
 
 # List backups
 list-backups:
-	@chmod +x backup.sh
-	@./backup.sh list
+	@bash ./backup.sh list
 
 # Check symlink status
 check:
-	@chmod +x symlink-manager.sh
-	@./symlink-manager.sh check
+	@bash ./symlink-manager.sh check
 
 # Update dotfiles
 update:
 	@echo "Pulling latest changes..."
 	@git pull origin main
-	@echo "Reinstalling..."
-	@./install.sh
+	@echo "Reapplying general configuration..."
+	@bash ./install.sh config
 
 # Clean old backups
 clean:
-	@chmod +x backup.sh
-	@./backup.sh cleanup
+	@bash ./backup.sh cleanup
 
 # Make all scripts executable
 chmod:
 	@chmod +x install.sh symlink-manager.sh backup.sh
 	@chmod +x script/*.sh
+	@chmod +x hammerspoon/install.sh
 	@echo "Made all scripts executable"
+
+# Test against temporary homes without installing packages
+test:
+	@python3 -m unittest discover -s tests -v

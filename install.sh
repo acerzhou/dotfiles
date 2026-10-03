@@ -3,12 +3,12 @@
 #############################################################
 # Dotfiles Installation Script
 # 
-# This script installs and configures dotfiles for macOS
-# and Linux systems. It handles symlinking, backups, and
-# initial setup.
+# Separate package installation, dotfile configuration,
+# and Hammerspoon setup for macOS and Linux systems.
+# Usage: ./install.sh [install|config|hammerspoon|help]
 #############################################################
 
-set -e
+set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -19,7 +19,6 @@ NC='\033[0m' # No Color
 
 # Dotfiles directory
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
 # Helper functions
 info() {
@@ -40,63 +39,38 @@ error() {
 
 # Detect OS
 detect_os() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [[ "${OSTYPE:-}" == "darwin"* ]]; then
         OS="macos"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    elif [[ "${OSTYPE:-}" == "linux-gnu"* ]]; then
         OS="linux"
     else
-        error "Unsupported OS: $OSTYPE"
+        error "Unsupported OS: ${OSTYPE:-unknown}"
         exit 1
     fi
     success "Detected OS: $OS"
-}
-
-# Create backup directory if needed
-create_backup_dir() {
-    if [ ! -d "$BACKUP_DIR" ]; then
-        mkdir -p "$BACKUP_DIR"
-        success "Created backup directory: $BACKUP_DIR"
-    fi
-}
-
-# Backup existing file
-backup_file() {
-    local file="$1"
-    if [ -f "$file" ] || [ -d "$file" ]; then
-        create_backup_dir
-        mv "$file" "$BACKUP_DIR/"
-        warning "Backed up existing file: $file"
-    fi
-}
-
-# Create symlink
-create_symlink() {
-    local source="$1"
-    local target="$2"
-    
-    # Backup existing file/directory
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-        backup_file "$target"
-    elif [ -L "$target" ]; then
-        rm "$target"
-    fi
-    
-    # Create parent directory if it doesn't exist
-    mkdir -p "$(dirname "$target")"
-    
-    # Create symlink
-    ln -sf "$source" "$target"
-    success "Linked $source -> $target"
 }
 
 # Install Homebrew (macOS)
 install_homebrew() {
     if ! command -v brew &> /dev/null; then
         info "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        local installer
+        installer="$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        /bin/bash -c "$installer"
         success "Homebrew installed"
     else
         success "Homebrew already installed"
+    fi
+    # Make newly installed Homebrew available in this process.
+    if ! command -v brew >/dev/null 2>&1; then
+        if [ -x /opt/homebrew/bin/brew ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [ -x /usr/local/bin/brew ]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        else
+            error "Homebrew is not available after installation"
+            return 1
+        fi
     fi
 }
 
@@ -109,9 +83,14 @@ install_packages() {
             success "Homebrew packages installed"
         fi
     elif [ "$OS" == "linux" ]; then
-        info "Updating apt packages..."
-        sudo apt update && sudo apt upgrade -y
-        success "System updated"
+        if ! command -v apt >/dev/null 2>&1; then
+            error "This Linux installer requires apt (Ubuntu or Debian)"
+            return 1
+        fi
+        info "Installing core command-line tools via apt..."
+        sudo apt update
+        sudo apt install -y zsh vim tmux git curl ripgrep fzf autojump jq tree wget htop shellcheck python3
+        success "Core command-line tools installed"
     fi
 }
 
@@ -119,43 +98,13 @@ install_packages() {
 setup_zsh() {
     info "Setting up ZSH..."
     
-    # Create .zsh directory
-    mkdir -p "$HOME/.zsh"
-    
-    # Link ZSH files
-    create_symlink "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
-    create_symlink "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
-    create_symlink "$DOTFILES_DIR/zsh/.alias" "$HOME/.zsh/.alias"
-    create_symlink "$DOTFILES_DIR/zsh/.tools" "$HOME/.zsh/.tools"
-    
     # Set ZSH as default shell
-    if [ "$SHELL" != "$(which zsh)" ]; then
+    local zsh_path
+    zsh_path="$(command -v zsh)" || { error "ZSH is not installed. Run make install first."; return 1; }
+    if [ "${SHELL:-}" != "$zsh_path" ]; then
         info "Setting ZSH as default shell..."
-        chsh -s "$(which zsh)"
+        chsh -s "$zsh_path"
         success "ZSH is now the default shell"
-    fi
-}
-
-# Setup Vim
-setup_vim() {
-    info "Setting up Vim..."
-    create_symlink "$DOTFILES_DIR/vim/.vimrc" "$HOME/.vimrc"
-}
-
-# Setup Tmux
-setup_tmux() {
-    info "Setting up Tmux..."
-    create_symlink "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
-}
-
-# Setup Git
-setup_git() {
-    info "Setting up Git..."
-    if [ -f "$DOTFILES_DIR/git/.gitconfig" ]; then
-        create_symlink "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
-    fi
-    if [ -f "$DOTFILES_DIR/git/.gitignore_global" ]; then
-        create_symlink "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
     fi
 }
 
@@ -168,7 +117,7 @@ setup_ssh_key() {
         return 0
     fi
 
-    read -p "Create an SSH key now? (y/n) " -n 1 -r
+    read -r -p "Create an SSH key now? (y/n) " -n 1
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         bash "$ssh_key_script"
@@ -181,68 +130,67 @@ setup_ssh_key() {
 setup_iterm2() {
     if [ "$OS" == "macos" ] && [ -f "$DOTFILES_DIR/iterm/iterm2-config.json" ]; then
         info "Setting up iTerm2..."
-        # iTerm2 preferences are typically loaded via Preferences -> Load preferences from folder
+        # This JSON file is a profile export, rather than a preferences folder.
         info "iTerm2 config available at: $DOTFILES_DIR/iterm/iterm2-config.json"
-        info "Load it manually from iTerm2 Preferences -> General -> Preferences"
+        info "Import it from iTerm2 Settings -> Profiles -> Other Actions -> Import JSON Profiles"
     fi
 }
 
-# Setup Hammerspoon (macOS only)
-setup_hammerspoon() {
-    if [ "$OS" == "macos" ]; then
-        info "Setting up Hammerspoon..."
-        create_symlink "$DOTFILES_DIR/hammerspoon" "$HOME/.hammerspoon"
-    fi
-}
-
-# Main installation
-main() {
-    echo ""
-    info "Starting dotfiles installation..."
-    echo ""
-    
-    detect_os
-    
-    # Ask for confirmation
-    read -p "This will symlink dotfiles to your home directory. Continue? (y/n) " -n 1 -r
+# Configure general dotfiles
+configure_dotfiles() {
+    read -r -p "This will symlink dotfiles to your home directory. Continue? (y/n) " -n 1
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        warning "Installation cancelled"
-        exit 0
+        warning "Configuration cancelled"
+        return 0
     fi
-    
-    # Install Homebrew on macOS
-    if [ "$OS" == "macos" ]; then
-        install_homebrew
-    fi
-    
-    # Install packages
-    read -p "Install packages? (y/n) " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        install_packages
-    fi
-    
-    # Setup configurations
+
+    bash "$DOTFILES_DIR/symlink-manager.sh" install
     setup_zsh
-    setup_vim
-    setup_tmux
-    setup_git
     setup_ssh_key
     setup_iterm2
-    setup_hammerspoon
-    
-    echo ""
-    success "Dotfiles installation complete!"
-    echo ""
-    
-    if [ -d "$BACKUP_DIR" ]; then
-        info "Your old dotfiles have been backed up to: $BACKUP_DIR"
-    fi
-    
+
+    success "Dotfiles configuration complete!"
     info "Please restart your terminal or run: source ~/.zshrc"
-    echo ""
 }
 
-# Run main function
-main
+usage() {
+    echo "Usage: $0 [install|config|hammerspoon|help]"
+    echo "  install     Install packages (default)"
+    echo "  config      Configure ZSH, Vim, Tmux, Git, SSH, and iTerm2"
+    echo "  hammerspoon Install and configure Hammerspoon (macOS only)"
+}
+
+main() {
+    local command="${1:-install}"
+    case "$command" in
+        help|-h|--help)
+            usage
+            return 0
+            ;;
+        install|config|hammerspoon) ;;
+        *)
+            usage
+            return 1
+            ;;
+    esac
+
+    detect_os
+    case "$command" in
+        install)
+            if [ "$OS" == "macos" ]; then
+                install_homebrew
+            fi
+            install_packages
+            success "Package installation complete!"
+            ;;
+        config)
+            configure_dotfiles
+            ;;
+        hammerspoon)
+            bash "$DOTFILES_DIR/hammerspoon/install.sh"
+            ;;
+    esac
+}
+
+main "$@"

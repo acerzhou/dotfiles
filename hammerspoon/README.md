@@ -12,8 +12,7 @@ A comprehensive Hammerspoon configuration with window management, app launching,
 4. [Clipboard Manager](#clipboard-manager)
 5. [Text Expansion](#text-expansion)
 6. [Window Layouts (Workspaces)](#window-layouts-workspaces)
-7. [Weather Menubar](#weather-menubar)
-8. [System Utilities](#system-utilities)
+7. [System Utilities](#system-utilities)
 
 ---
 
@@ -149,26 +148,6 @@ Apply predefined window arrangements for different work contexts.
 
 ---
 
-## Weather Menubar
-
-Live weather display in the macOS menubar.
-
-| Action                    | Function                                      |
-| ------------------------- | --------------------------------------------- |
-| **Menubar Click**         | Show menu options                             |
-| **Update Weather**        | Manually refresh weather data                 |
-| **Open Weather Forecast** | Opens wttr.in forecast in browser             |
-| **Change Location**       | Set weather location (default: San Francisco) |
-
-**Features:**
-
-- Auto-updates every 30 minutes
-- Uses wttr.in API for weather data
-- Shows temperature and weather icon
-- Configure with `weatherCity` variable (use underscores for spaces)
-
----
-
 ## System Utilities
 
 System-level utilities and configuration management.
@@ -202,7 +181,6 @@ System-level utilities and configuration management.
     ├── clipboard.lua             # Clipboard history manager
     ├── text-expansion.lua        # Text expansion engine
     ├── layouts.lua               # Workspace layouts
-    ├── weather.lua               # Menubar weather display
     └── system.lua                # System utilities
 ```
 
@@ -213,36 +191,33 @@ System-level utilities and configuration management.
 ### Prerequisites
 
 - macOS
-- [Hammerspoon](http://www.hammerspoon.org/) installed
+- Homebrew (to install Hammerspoon if it is not already installed)
 - [Karabiner-Elements](https://karabiner-elements.pica4.jp/) (for Hyper key support)
 
 ### Installation Steps
 
-1. **Install Hammerspoon**
+1. **Install and configure Hammerspoon** from the repository root:
 
    ```bash
-   brew install hammerspoon
+   make hammerspoon
+   # Or run the standalone installer from any directory
+   bash /path/to/dotfiles/hammerspoon/install.sh
    ```
 
-2. **Install Karabiner-Elements** (optional, for Hyper key)
+   The installer installs Hammerspoon via Homebrew if needed and links this directory to `~/.hammerspoon`. Existing configuration is backed up to a unique `~/.dotfiles-backups/<backup-name>/.hammerspoon` path. Repeated runs keep the correct symlink in place. If Homebrew is missing, run `make install` first.
+
+2. **Install Karabiner-Elements** (optional, for Hyper key):
 
    ```bash
-   brew install karabiner-elements
+   brew install --cask karabiner-elements
    ```
 
-   - Configure Caps Lock → F18 in Karabiner
+   Configure Caps Lock → F18 in Karabiner.
 
-3. **Clone or copy config to**
+3. **Open Hammerspoon**, enable Accessibility access when prompted, and reload the configuration from its menu.
 
-   ```bash
-   ~/.hammerspoon/
-   ```
+4. **Set environment variable** (for email expansion):
 
-4. **Reload Hammerspoon**
-   - Open Hammerspoon app
-   - Press <kbd>⌘⌥⌃</kbd> + <kbd>R</kbd>
-
-5. **Set environment variable** (for email expansion)
    ```bash
    export MY_EMAIL="your.email@example.com"
    ```
@@ -267,14 +242,6 @@ layouts.addLayout("custom", {
 })
 ```
 
-### Change Weather Location
-
-Edit `modules/weather.lua`:
-
-```lua
-local weatherCity = "London"  -- Use underscores for spaces: "New_York"
-```
-
 ---
 
 ## Troubleshooting
@@ -283,7 +250,6 @@ local weatherCity = "London"  -- Use underscores for spaces: "New_York"
 | --------------------- | ------------------------------------------------------------------------------------------ |
 | Hotkeys not working   | Ensure Hammerspoon has accessibility permissions (System Preferences → Security & Privacy) |
 | Hyper key not working | Install and configure Karabiner-Elements, map Caps Lock to F18                             |
-| Weather shows error   | Check internet connection and verify city name spelling                                    |
 | Config not reloading  | Check file permissions and ensure `.lua` files are in correct directory                    |
 
 ---

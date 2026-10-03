@@ -28,11 +28,11 @@ local function addToClipboard(content)
 end
 
 function M.init()
-    clipboardTimer = hs.timer.new(1, function()
+    M.clipboardTimer = hs.timer.new(1, function()
         local content = hs.pasteboard.getContents()
         addToClipboard(content)
     end)
-    clipboardTimer:start()
+    M.clipboardTimer:start()
 
     hs.hotkey.bind({"cmd", "alt"}, "V", function()
         if #clipboardHistory == 0 then

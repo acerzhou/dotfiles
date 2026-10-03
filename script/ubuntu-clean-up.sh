@@ -1,8 +1,5 @@
-#!/bin/sh
+`!/usr/bin/env bash
 
-# apt-get update & apt-get upgrade 
-sudo apt-get update && sudo apt-get upgrade -y
-
-echo 'Remove Applications'
-
+# Optional removal of Google Chrome; unrelated packages are left in place.
+set -euo pipefail
 sudo apt-get remove google-chrome-stable

@@ -1,7 +1,3 @@
-[user]
-	name = Your Name
-	email = your.email@example.com
-
 [core]
 	editor = vim
 	excludesfile = ~/.gitignore_global
@@ -109,3 +105,7 @@
 [merge]
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
+
+# Machine-specific identity and settings override this shared configuration.
+[include]
+	path = ~/.gitconfig.local

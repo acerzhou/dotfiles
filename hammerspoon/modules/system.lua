@@ -23,8 +23,8 @@ function M.init()
             hs.reload()
         end
     end
-    local configWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", reloadConfig)
-    configWatcher:start()
+    M.configWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", reloadConfig)
+    M.configWatcher:start()
 
     hs.hotkey.bind({"cmd", "alt", "ctrl"}, "O", function()
         hs.execute("open -a 'Visual Studio Code' ~/.hammerspoon/")

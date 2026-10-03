@@ -26,24 +26,22 @@ This repository contains my personal dotfiles and automated setup scripts to qui
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dotfiles.git ~/Repos/dotfiles
+git clone https://github.com/acerzhou/dotfiles.git ~/Repos/dotfiles
 cd ~/Repos/dotfiles
 
-# Make the install script executable
-chmod +x install.sh
+# Install packages
+make install
 
-# Run the installation
-./install.sh
+# Configure ZSH, Vim, Tmux, Git, SSH, and iTerm2
+make config
+
+# Set up Hammerspoon configuration separately (macOS)
+make hammerspoon
 ```
 
-The installation script will:
+`make install` installs Homebrew and Brewfile packages on macOS, or installs core command-line tools via apt on Ubuntu. `make config` backs up existing dotfiles, creates general configuration symlinks, sets ZSH as your default shell, and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` to install the app via Homebrew if needed and link its configuration to `~/.hammerspoon`, backing up any existing configuration. Homebrew is required if the app is not already installed.
 
-- ✅ Detect your operating system
-- ✅ Backup existing dotfiles
-- ✅ Create symbolic links to dotfiles
-- ✅ Optionally install packages (Homebrew/apt)
-- ✅ Set up ZSH, Vim, Tmux, and Git configurations
-- ✅ Optionally create an SSH key with interactive email and passphrase prompts
+You can also run `./install.sh install`, `./install.sh config`, or `./install.sh hammerspoon` directly. Running `./install.sh` without arguments installs packages only.
 
 ## 📁 Structure
 
@@ -71,25 +69,23 @@ dotfiles/
 
 ### GUI Applications
 
-| Function           | macOS             | Ubuntu          |
-| ------------------ | ----------------- | --------------- |
-| Package Manager    | Homebrew          | apt & snap      |
-| Browser            | Firefox, Chrome   | Firefox, Chrome |
-| Communication      | Slack             | Slack           |
-| Email              | Mail              | Thunderbird     |
-| Video Conferencing | Zoom              | Zoom            |
-| Terminal           | iTerm2            | Terminal        |
-| Notes              | Notion            | Notion          |
-| Editor             | VS Code, Vim      | VS Code, Vim    |
-| Containers         | Docker            | Docker          |
-| Window Manager     | Yabai/Hammerspoon | i3wm            |
-| Automation         | Hammerspoon       | -               |
+The macOS Brewfile installs the applications below. Hammerspoon uses its own installer. The Ubuntu installer installs command-line tools only.
+
+| Purpose | macOS application |
+| --- | --- |
+| Browsers | Firefox, Google Chrome |
+| Terminal | iTerm2 |
+| Editor | Visual Studio Code |
+| Containers | Docker |
+| Automation | Hammerspoon (separate command) |
 
 ### Command Line Tools
 
+Available tools and optional integrations include:
+
 | Tool         | Description                           |
 | ------------ | ------------------------------------- |
-| **zsh**      | Default shell with Oh My Zsh          |
+| **zsh**      | Shell with custom configuration          |
 | **tmux**     | Terminal multiplexer                  |
 | **vim**      | Text editor                           |
 | **git**      | Version control                       |
@@ -100,10 +96,10 @@ dotfiles/
 | **jq**       | JSON processor                        |
 | **yq**       | YAML processor                        |
 | **bat**      | Better `cat` with syntax highlighting |
-| **ffmpeg**   | Media processing                      |
-| **tldr**     | Simplified man pages                  |
 
 ### Development Environments
+
+Install language runtimes separately; shell integrations load when available.
 
 - **Node.js** (via nvm)
 - **Python**
@@ -120,16 +116,16 @@ Edit [`zsh/.zshrc`](zsh/.zshrc) for shell settings and [`zsh/.alias`](zsh/.alias
 
 ### Git Configuration
 
-Update [`git/.gitconfig`](git/.gitconfig) with your name and email:
+Store your name and email in `~/.gitconfig.local`, which the shared Git configuration includes automatically:
 
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
+git config --file ~/.gitconfig.local user.name "Your Name"
+git config --file ~/.gitconfig.local user.email "your.email@example.com"
 ```
 
 ### Vim Configuration
 
-Customize [`vim/.vimrc`](vim/.vimrc) for your preferred Vim settings.
+Customize [`vim/.vimrc`](vim/.vimrc) for your preferred Vim settings. Vim starts without optional plugins installed. To enable them, install [vim-plug](https://github.com/junegunn/vim-plug) and run `:PlugInstall` in Vim.
 
 ### Tmux Configuration
 
@@ -147,22 +143,35 @@ To update your dotfiles:
 cd ~/Repos/dotfiles
 git pull origin main
 
-# Re-run installation if needed
-./install.sh
+# Reapply general configuration if needed
+make config
+
+# Reapply Hammerspoon configuration independently
+make hammerspoon
 ```
 
 ## 🗑️ Uninstallation
 
-Your original dotfiles are backed up to `~/.dotfiles-backup-<timestamp>/`. To restore:
+Installer backups and manual snapshots are stored in `~/.dotfiles-backups/<backup-name>/`. Automatic backups preserve replaced paths; `make backup` snapshots the current contents, including symlinked configuration.
 
 ```bash
-# Find your backup directory
-ls -la ~ | grep dotfiles-backup
+make list-backups
+make restore BACKUP=<backup-name>
 
-# Restore from backup
-cp ~/.dotfiles-backup-YYYYMMDD-HHMMSS/.zshrc ~/
-# ... restore other files as needed
+# Remove this repository's symlinks
+make uninstall
 ```
+
+Restore creates a safety backup first and restores only paths present in the chosen backup. `make clean` keeps the five newest backups. Older backups created under `~/.dotfiles-backup-*` are left in place and can be restored manually.
+
+## Verification
+
+```bash
+make test
+make check
+```
+
+Tests use temporary home directories. `make check` reports every general dotfile link and exits with a nonzero status if any link is missing or incorrect. Hammerspoon remains independent from these commands.
 
 ## 🔗 Useful Resources
 

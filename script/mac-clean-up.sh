@@ -1,10 +1,7 @@
-#/bin/sh
+#!/usr/bin/env bash
 
-echo Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/uninstall/HEAD/uninstall.sh)"
-
-echo "Prepare console to execute and ignore comments"
-set -k
+# Optional removal of the applications and tools listed below.
+set -euo pipefail
 
 echo "uninstall Apps"
 brew uninstall --cask firefox
@@ -25,4 +22,3 @@ brew uninstall yq
 brew uninstall htop
 brew uninstall tmux
 brew uninstall autojump
-

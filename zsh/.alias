@@ -10,7 +10,13 @@ alias ~='cd ~'
 alias -- -='cd -'
 
 # ---- Enhanced ls -------------------------------------------------
-alias ls='ls -G'  # macOS color
+if [[ "$OSTYPE" == darwin* ]]; then
+    alias ls='ls -G'
+    alias localip='ipconfig getifaddr en0'
+else
+    alias ls='ls --color=auto'
+    alias localip='hostname -I'
+fi
 alias ll='ls -lAh'
 alias la='ls -A'
 alias l='ls -CF'
@@ -53,16 +59,19 @@ alias mv='mv -i'
 # ---- System Monitoring -------------------------------------------
 alias df='df -h'
 alias du='du -h'
-alias free='free -h'
-alias ports='netstat -tulanp'
-alias meminfo='free -m -l -t'
-alias psmem='ps auxf | sort -nr -k 4'
-alias pscpu='ps auxf | sort -nr -k 3'
+if [[ "$OSTYPE" == darwin* ]]; then
+    alias meminfo='vm_stat'
+    alias psmem='ps aux | sort -nr -k 4'
+    alias pscpu='ps aux | sort -nr -k 3'
+else
+    alias free='free -h'
+    alias meminfo='free -m -l -t'
+    alias psmem='ps auxf | sort -nr -k 4'
+    alias pscpu='ps auxf | sort -nr -k 3'
+fi
 
 # ---- Network -----------------------------------------------------
 alias ping='ping -c 5'
-alias myip='curl -s ifconfig.me'
-alias localip='ipconfig getifaddr en0'  # macOS
 alias ports='lsof -i -P -n | grep LISTEN'
 
 # ═══════════════════════════════════════════════════════════
@@ -110,7 +119,7 @@ alias gunwip='git log -1 --pretty=%s | grep -q "WIP" && git reset HEAD~1'
 # ═══════════════════════════════════════════════════════════
 
 alias d='docker'
-alias dc='docker-compose'
+alias dc='docker compose'
 alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias di='docker images'
@@ -127,7 +136,3 @@ alias dexec='docker exec -it'
 
 alias npmg='npm list -g --depth=0'
 alias npml='npm list --depth=0'
-alias serve='python3 -m http.server 8000'
-alias json='python3 -m json.tool'
-
-
