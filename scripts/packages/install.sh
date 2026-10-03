@@ -8,10 +8,6 @@ PROFILE_NAME="${PROFILE:-default}"
 PROFILE_BREWFILE=""
 DRY_RUN=false
 
-info() { printf '\033[0;34m==>\033[0m %s\n' "$1"; }
-success() { printf '\033[0;32m✓\033[0m %s\n' "$1"; }
-error() { printf '\033[0;31m✗\033[0m %s\n' "$1"; }
-
 usage() {
     echo "Usage: $0 install [--profile NAME] [--dry-run]"
     echo "       $0 profiles"
@@ -19,49 +15,52 @@ usage() {
 
 require_macos() {
     if [[ "${OSTYPE:-}" != darwin* ]]; then
-        error "This dotfiles setup requires macOS"
+        echo "This dotfiles setup requires macOS" >&2
         return 1
     fi
-    success "Detected macOS"
+    echo "Detected macOS"
 }
 
 validate_manifests() {
     if [[ ! "$PROFILE_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]]; then
-        error "Invalid profile name: $PROFILE_NAME"
+        echo "Invalid profile name: $PROFILE_NAME" >&2
         return 1
     fi
     if [ ! -f "$DOTFILES_DIR/brew/Brewfile" ]; then
-        error "Default Brewfile is missing"
+        echo "Default Brewfile is missing" >&2
         return 1
     fi
     if [ "$PROFILE_NAME" != default ]; then
-        PROFILE_BREWFILE="$DOTFILES_DIR/profiles/$PROFILE_NAME/Brewfile"
+        PROFILE_BREWFILE="$DOTFILES_DIR/brew/profiles/$PROFILE_NAME.Brewfile"
         if [ ! -f "$PROFILE_BREWFILE" ]; then
-            error "Unknown or incomplete profile: $PROFILE_NAME. Run make profiles."
+            echo "Unknown or incomplete profile: $PROFILE_NAME. Run make profiles." >&2
             return 1
         fi
     fi
 }
 
 list_profiles() {
-    local directory
+    local directory name
     echo "Available profiles (default: default):"
     echo "  default"
-    for directory in "$DOTFILES_DIR"/profiles/*; do
-        [ -f "$directory/Brewfile" ] && printf '  %s\n' "${directory##*/}"
+    for directory in "$DOTFILES_DIR"/brew/profiles/*.Brewfile; do
+        if [ -f "$directory" ]; then
+            name="${directory##*/}"
+            printf '  %s\n' "${name%.Brewfile}"
+        fi
     done
     return 0
 }
 
 ensure_homebrew() {
     if ! command -v brew >/dev/null 2>&1; then
-        info "Installing Homebrew..."
+        echo "Installing Homebrew..."
         local installer
         installer="$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         /bin/bash -c "$installer"
-        success "Homebrew installed"
+        echo "Homebrew installed"
     else
-        success "Homebrew already installed"
+        echo "Homebrew already installed"
     fi
 
     if ! command -v brew >/dev/null 2>&1; then
@@ -70,28 +69,28 @@ ensure_homebrew() {
         elif [ -x /usr/local/bin/brew ]; then
             eval "$(/usr/local/bin/brew shellenv)"
         else
-            error "Homebrew is not available after installation"
+            echo "Homebrew is not available after installation" >&2
             return 1
         fi
     fi
 }
 
 show_plan() {
-    info "Default packages: brew/Brewfile"
+    echo "Default packages: brew/Brewfile"
     cat "$DOTFILES_DIR/brew/Brewfile"
     if [ -n "$PROFILE_BREWFILE" ]; then
-        info "Additional packages: profiles/$PROFILE_NAME/Brewfile"
+        echo "Additional packages: brew/profiles/$PROFILE_NAME.Brewfile"
         cat "$PROFILE_BREWFILE"
     fi
 }
 
 install_packages() {
-    info "Installing packages via Homebrew..."
+    echo "Installing packages via Homebrew..."
     brew bundle --file="$DOTFILES_DIR/brew/Brewfile"
     if [ -n "$PROFILE_BREWFILE" ]; then
         brew bundle --file="$PROFILE_BREWFILE"
     fi
-    success "Package installation complete"
+    echo "Package installation complete"
 }
 
 command="${1:-install}"
@@ -112,7 +111,7 @@ fi
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --profile)
-            [ "$#" -ge 2 ] && [ -n "$2" ] || { error "--profile requires a name"; exit 1; }
+            [ "$#" -ge 2 ] && [ -n "$2" ] || { echo "--profile requires a name" >&2; exit 1; }
             PROFILE_NAME="$2"
             shift 2
             ;;
@@ -121,7 +120,7 @@ while [ "$#" -gt 0 ]; do
             shift
             ;;
         *)
-            error "Unknown argument: $1"
+            echo "Unknown argument: $1" >&2
             usage >&2
             exit 1
             ;;
@@ -130,7 +129,7 @@ done
 
 validate_manifests
 require_macos
-info "Install profile: $PROFILE_NAME"
+echo "Install profile: $PROFILE_NAME"
 
 if [ "$DRY_RUN" = true ]; then
     show_plan

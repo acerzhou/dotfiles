@@ -21,7 +21,7 @@ make profiles
 make install-plan PROFILE=personal
 ```
 
-Default packages are in `brew/Brewfile`; optional additions are in `profiles/<name>/Brewfile`.
+Default packages are in `brew/Brewfile`; optional additions are in `brew/profiles/<name>.Brewfile`.
 
 `make config` links the default ZSH, Vim, Tmux, and Git configuration, backs up replaced paths, sets ZSH as your default shell, and offers SSH key creation. Configuration does not vary by package profile. Hammerspoon still has its own installer at `hammerspoon/install.sh`.
 
@@ -66,7 +66,7 @@ For Hammerspoon, open the app, enable Accessibility access when prompted, and re
 | `make clean` | Keep the five newest backups |
 | `make test` | Run isolated regression tests |
 
-You can run `bash install.sh install --profile personal` or `bash install.sh config` directly. The profile flag applies only to package installation.
+The Makefile is the supported interface. Package profiles apply only to `make install` and `make install-plan`.
 
 ## Backups and Restore
 

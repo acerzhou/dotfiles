@@ -19,7 +19,7 @@ make config
 make hammerspoon
 ```
 
-Use `make install PROFILE=personal` to install the default packages followed by `profiles/personal/Brewfile`. Package profiles do not change configuration.
+Use `make install PROFILE=personal` to install the default packages followed by `brew/profiles/personal.Brewfile`. Package profiles do not change configuration.
 
 ## Structure
 
@@ -30,7 +30,6 @@ dotfiles/
 ├── git/           # Git configuration
 ├── hammerspoon/   # Hammerspoon configuration and installer
 ├── iterm/         # iTerm2 profile export
-├── profiles/      # Additive package manifests
 ├── scripts/       # Operational scripts grouped by domain
 ├── tests/         # Isolated regression tests
 ├── tmux/          # Tmux configuration
@@ -38,8 +37,7 @@ dotfiles/
 ├── zsh/           # ZSH configuration
 ├── AGENTS.md      # AI operating contract
 ├── CHANGELOG.md   # Project history
-├── Makefile       # Public commands
-└── install.sh     # Command dispatcher
+└── Makefile       # Public commands
 ```
 
 ## Common commands
@@ -61,7 +59,6 @@ Run `make help` for all supported commands.
 - [Setup, customization, and recovery](docs/setup.md)
 - [Hammerspoon shortcuts](hammerspoon/README.md)
 - [ZSH configuration](zsh/README.md)
-- [Package profiles](profiles/README.md)
 - [Project history](CHANGELOG.md)
 
 Machine-local Git identity belongs in `~/.gitconfig.local`; shell customizations belong in `~/.zshrc.local`. Neither file is tracked.

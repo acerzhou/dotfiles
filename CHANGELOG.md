@@ -6,9 +6,9 @@
 
 - Established one default ZSH, Git, Tmux, Vim, and Hammerspoon configuration.
 - Consolidated default packages into `brew/Brewfile`.
-- Reduced `profiles/personal/` to an additive Brewfile with no configuration overrides.
+- Moved personal package additions to `brew/profiles/personal.Brewfile`.
 - Removed profile switching, compatibility setup wrappers, Linux-only scripts, and duplicated package cleanup lists.
-- Split the installer into a public dispatcher and focused package and macOS configuration scripts.
+- Made the Makefile the sole public interface over focused package and macOS configuration scripts.
 - Grouped operational scripts under `scripts/` by domain.
 
 ### Documentation
@@ -16,7 +16,7 @@
 - Added `AGENTS.md` as the repository operating contract for AI-assisted work.
 - Reduced the root README to an overview and documentation index.
 - Moved detailed operational guidance to `docs/setup.md`.
-- Kept Hammerspoon, ZSH, and profile documentation beside their domains.
+- Kept Hammerspoon and ZSH documentation beside their domains.
 
 ### Reliability
 

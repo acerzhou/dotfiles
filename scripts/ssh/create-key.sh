@@ -4,29 +4,7 @@
 
 set -euo pipefail
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
 DEFAULT_KEY_PATH="$HOME/.ssh/id_ed25519"
-
-info() {
-    printf "${BLUE}==>${NC} %s\n" "$1"
-}
-
-success() {
-    printf "${GREEN}✓${NC} %s\n" "$1"
-}
-
-warning() {
-    printf "${YELLOW}!${NC} %s\n" "$1"
-}
-
-error() {
-    printf "${RED}✗${NC} %s\n" "$1"
-}
 
 prompt_email() {
     local email
@@ -36,7 +14,7 @@ prompt_email() {
             SSH_KEY_EMAIL="$email"
             return 0
         fi
-        warning "Email cannot be empty."
+        echo "Email cannot be empty."
     done
 }
 
@@ -55,7 +33,7 @@ prompt_passphrase() {
             return 0
         fi
 
-        warning "Passphrases do not match. Please try again."
+        echo "Passphrases do not match. Please try again."
     done
 }
 
@@ -66,7 +44,7 @@ create_ssh_key() {
     if [ -f "$DEFAULT_KEY_PATH" ] || [ -f "$DEFAULT_KEY_PATH.pub" ]; then
         read -r -p "SSH key already exists at $DEFAULT_KEY_PATH. Overwrite it? (y/n) " overwrite
         if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
-            warning "Skipping SSH key creation."
+            echo "Skipping SSH key creation."
             return 0
         fi
 
@@ -74,7 +52,7 @@ create_ssh_key() {
     fi
 
     ssh-keygen -t ed25519 -C "$SSH_KEY_EMAIL" -f "$DEFAULT_KEY_PATH" -N "$SSH_KEY_PASSPHRASE"
-    success "SSH key created at $DEFAULT_KEY_PATH"
+    echo "SSH key created at $DEFAULT_KEY_PATH"
 
     if command -v ssh-add >/dev/null 2>&1; then
         if [ "$(uname -s)" = "Darwin" ]; then
@@ -84,13 +62,13 @@ create_ssh_key() {
         fi
     fi
 
-    info "Public key:"
+    echo "Public key:"
     printf "%s\n" "$DEFAULT_KEY_PATH.pub"
 }
 
 main() {
     if ! command -v ssh-keygen >/dev/null 2>&1; then
-        error "ssh-keygen is not available on this system."
+        echo "ssh-keygen is not available on this system." >&2
         exit 1
     fi
 

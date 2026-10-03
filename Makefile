@@ -25,18 +25,18 @@ help:
 
 # Install packages
 install:
-	@bash ./install.sh install --profile "$(PROFILE)"
+	@bash ./scripts/packages/install.sh install --profile "$(PROFILE)"
 
 # Preview package manifests without installing anything
 install-plan:
-	@bash ./install.sh install --profile "$(PROFILE)" --dry-run
+	@bash ./scripts/packages/install.sh install --profile "$(PROFILE)" --dry-run
 
 profiles:
-	@bash ./install.sh profiles
+	@bash ./scripts/packages/install.sh profiles
 
 # Configure default dotfiles
 config:
-	@bash ./install.sh config
+	@bash ./scripts/macos/configure.sh
 
 # Install and configure Hammerspoon independently
 hammerspoon:
@@ -71,7 +71,7 @@ update:
 	@echo "Pulling latest changes..."
 	@git pull origin main
 	@echo "Reapplying default configuration..."
-	@bash ./install.sh config
+	@bash ./scripts/macos/configure.sh
 
 # Clean old backups
 clean:

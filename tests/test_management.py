@@ -22,7 +22,7 @@ class ManagementTests(unittest.TestCase):
                                 env=self.env, input=stdin, text=True,
                                 capture_output=True, cwd=self.home)
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
-        return result.stdout
+        return result.stdout + result.stderr
 
     def backups(self):
         return sorted((self.home / ".dotfiles-backups").glob("*"))
@@ -96,20 +96,20 @@ class ManagementTests(unittest.TestCase):
         self.run_script("scripts/dotfiles/backups.sh", "cleanup")
 
     def test_profiles_are_listed_and_can_be_previewed(self):
-        output = self.run_script("install.sh", "profiles")
+        output = self.run_script("scripts/packages/install.sh", "profiles")
         for profile in ("default", "personal"):
             self.assertIn(profile, output)
         self.assertNotIn("work", output)
         self.assertNotIn("general", output)
 
-        output = self.run_script("install.sh", "install", "--profile", "personal",
+        output = self.run_script("scripts/packages/install.sh", "install", "--profile", "personal",
                                  "--dry-run")
         self.assertIn("Install profile: personal", output)
         self.assertIn('brew "zsh"', output)
 
     def test_unknown_and_unsafe_profiles_fail_before_installing(self):
         for profile in ("missing", "../default"):
-            output = self.run_script("install.sh", "install", "--profile", profile,
+            output = self.run_script("scripts/packages/install.sh", "install", "--profile", profile,
                                      expected=1)
             self.assertIn("profile", output.lower())
 
@@ -122,10 +122,10 @@ class ManagementTests(unittest.TestCase):
         brew.chmod(0o755)
         self.env.update(OSTYPE="darwin", PATH=f"{bins}:/usr/bin:/bin",
                         BREW_LOG=str(log))
-        self.run_script("install.sh", "install", "--profile", "personal")
+        self.run_script("scripts/packages/install.sh", "install", "--profile", "personal")
         calls = log.read_text()
         self.assertIn("bundle --file=" + str(REPO / "brew/Brewfile"), calls)
-        self.assertIn("bundle --file=" + str(REPO / "profiles/personal/Brewfile"), calls)
+        self.assertIn("bundle --file=" + str(REPO / "brew/profiles/personal.Brewfile"), calls)
 
     def test_default_install_uses_only_the_canonical_brewfile(self):
         bins = self.home / "bin"
@@ -136,24 +136,19 @@ class ManagementTests(unittest.TestCase):
         brew.chmod(0o755)
         self.env.update(OSTYPE="darwin", PATH=f"{bins}:/usr/bin:/bin",
                         BREW_LOG=str(log))
-        self.run_script("install.sh", "install")
+        self.run_script("scripts/packages/install.sh", "install")
         self.assertEqual(log.read_text().strip(),
                          "bundle --file=" + str(REPO / "brew/Brewfile"))
 
     def test_installer_rejects_unsupported_platforms(self):
         self.env["OSTYPE"] = "freebsd"
-        output = self.run_script("install.sh", "install", "--dry-run", expected=1)
+        output = self.run_script("scripts/packages/install.sh", "install", "--dry-run", expected=1)
         self.assertIn("requires macOS", output)
 
     def test_config_does_not_install_packages(self):
-        self.run_script("install.sh", "config", stdin="y\nn\n")
+        self.run_script("scripts/macos/configure.sh", stdin="y\nn\n")
         self.assertTrue((self.home / ".zshrc").is_symlink())
         self.assertFalse((self.home / ".hammerspoon").exists())
-
-    def test_config_rejects_package_profile_arguments(self):
-        self.run_script("install.sh", "config", "--profile", "personal",
-                        expected=1)
-        self.assertFalse((self.home / ".zshrc").exists())
 
     @unittest.skipUnless(
         Path("/bin/zsh").is_file()
@@ -177,7 +172,7 @@ class ManagementTests(unittest.TestCase):
             PATH=f"{bins}:/usr/bin:/bin",
             SHELL_LOG=str(log),
         )
-        output = self.run_script("install.sh", "config", stdin="y\nn\n")
+        output = self.run_script("scripts/macos/configure.sh", stdin="y\nn\n")
         self.assertIn("using /bin/zsh", output)
         self.assertIn("-s /bin/zsh", log.read_text())
 
