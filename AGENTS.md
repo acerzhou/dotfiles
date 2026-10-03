@@ -9,6 +9,7 @@ Follow this contract for every change in this repository.
 3. Maintain one authoritative implementation for each behavior; remove duplication instead of synchronizing copies.
 4. Keep content in its owning domain directory. Root is reserved for repository-wide entry points, metadata, and overview documents.
 5. Preserve existing user changes and never expose secrets or track machine-local values.
+6. Do not track real names, email addresses, usernames, account URLs, absolute home paths, or other personal identifiers; use neutral placeholders.
 
 ## Work limits
 
@@ -45,6 +46,7 @@ Follow this contract for every change in this repository.
 - `scripts/utilities/`: independent helper tools.
 - `brew/`: default and additive package manifests.
 - `hammerspoon/`, `zsh/`, `git/`, `tmux/`, `vim/`, `iterm/`: tool-owned configuration.
+- `git/hooks/pre-commit`: staged secret and personal-information checks.
 - `tests/`: isolated regression coverage.
 - `docs/`: detailed repository-wide documentation.
 
@@ -66,6 +68,8 @@ Do not place domain implementation at repository root or move domain-specific co
 4. Remove obsolete files and references when replacing an implementation.
 5. Update tests and the owning documentation when behavior changes.
 6. Check for stale paths, duplicate logic, and broken links before finishing.
+7. Scan tracked content for personal identifiers before publishing or handing off identity-related changes.
+8. Keep privacy checks generic; store identity-specific patterns only in untracked `.git/info/personal-patterns` files.
 
 ## Verification
 

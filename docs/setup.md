@@ -3,7 +3,7 @@
 ## New Machine
 
 ```bash
-git clone https://github.com/acerzhou/dotfiles.git ~/Repos/dotfiles
+git clone <repository-url> ~/Repos/dotfiles
 cd ~/Repos/dotfiles
 make install
 make config
@@ -36,6 +36,19 @@ exec zsh
 ```
 
 The default Git configuration includes `~/.gitconfig.local` automatically. Machine-local shell settings belong in `~/.zshrc.local`, loaded by the interactive shell.
+
+### Commit privacy checks
+
+`make config` links `git/hooks/pre-commit` as the global Git hook. It rejects staged private keys, common tokens, credential literals, real email addresses, absolute home paths, and sensitive credential filenames.
+
+Add repository-specific names, handles, or other identity regular expressions to the untracked file `.git/info/personal-patterns`, one pattern per line:
+
+```text
+private-handle
+Person Name
+```
+
+Use neutral placeholders such as `your.email@example.com` in tracked examples.
 
 ## Optional Setup
 

@@ -29,7 +29,7 @@ class ManagementTests(unittest.TestCase):
 
     def test_check_reports_all_missing_links(self):
         output = self.run_script("scripts/dotfiles/links.sh", "check", expected=1)
-        self.assertIn("8 missing (total: 8)", output)
+        self.assertIn("9 missing (total: 9)", output)
         self.assertIn(".gitignore_global", output)
 
     def test_links_are_idempotent_and_hammerspoon_is_separate(self):
@@ -106,6 +106,38 @@ class ManagementTests(unittest.TestCase):
                                  "--dry-run")
         self.assertIn("Install profile: personal", output)
         self.assertIn('brew "zsh"', output)
+
+    def test_pre_commit_hook_blocks_private_data(self):
+        repository = self.home / "repository"
+        repository.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repository, env=self.env,
+                       check=True)
+        candidate = repository / "candidate.txt"
+
+        def run_hook(content):
+            candidate.write_text(content)
+            subprocess.run(["git", "add", candidate.name], cwd=repository,
+                           env=self.env, check=True)
+            return subprocess.run(
+                ["/bin/bash", str(REPO / "git/hooks/pre-commit")],
+                cwd=repository, env=self.env, text=True, capture_output=True,
+            )
+
+        self.assertEqual(run_hook("contact@example.com\n").returncode, 0)
+
+        result = run_hook("person@private.invalid\n")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("email address", result.stderr)
+
+        result = run_hook('api_key = "not-a-real-secret"\n')
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("credential literal", result.stderr)
+
+        patterns = repository / ".git/info/personal-patterns"
+        patterns.write_text("PrivateHandle\n")
+        result = run_hook("PrivateHandle\n")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("personal pattern", result.stderr)
 
     def test_unknown_and_unsafe_profiles_fail_before_installing(self):
         for profile in ("missing", "../default"):

@@ -12,7 +12,7 @@ Minimal macOS development environment configuration with one default setup path 
 ## Quick start
 
 ```sh
-git clone https://github.com/acerzhou/dotfiles.git ~/Repos/dotfiles
+git clone <repository-url> ~/Repos/dotfiles
 cd ~/Repos/dotfiles
 make install
 make config
@@ -62,3 +62,5 @@ Run `make help` for all supported commands.
 - [Project history](CHANGELOG.md)
 
 Machine-local Git identity belongs in `~/.gitconfig.local`; shell customizations belong in `~/.zshrc.local`. Neither file is tracked.
+
+The managed pre-commit hook rejects common secrets and personal information. Add repository-specific identity patterns to `.git/info/personal-patterns`.

@@ -5,8 +5,8 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BACKUP_DIR=""
-SOURCES=(zsh/.zshrc zsh/.zprofile zsh/.alias zsh/.tools vim/.vimrc tmux/.tmux.conf git/.gitconfig git/.gitignore_global)
-TARGETS=(.zshrc .zprofile .zsh/.alias .zsh/.tools .vimrc .tmux.conf .gitconfig .gitignore_global)
+SOURCES=(zsh/.zshrc zsh/.zprofile zsh/.alias zsh/.tools vim/.vimrc tmux/.tmux.conf git/.gitconfig git/.gitignore_global git/hooks)
+TARGETS=(.zshrc .zprofile .zsh/.alias .zsh/.tools .vimrc .tmux.conf .gitconfig .gitignore_global .config/git/hooks)
 
 COMMAND="${1:-check}"
 

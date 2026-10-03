@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Reject staged secrets and personal information before commit creation.
+set -euo pipefail
+
+failed=false
+custom_patterns="$(git rev-parse --git-path info/personal-patterns)"
+
+report() {
+    printf 'Blocked %s in staged file: %s\n' "$1" "$2" >&2
+    failed=true
+}
+
+check_content() {
+    local file="$1" content="$2" email pattern
+
+    printf '%s' "$content" | grep -Eiq -- '-----BEGIN ([A-Z0-9 ]+ )?PRIVATE KEY-----' && report "private key" "$file"
+    printf '%s' "$content" | grep -Eiq -- 'AKIA[0-9A-Z]{16}' && report "AWS access key" "$file"
+    printf '%s' "$content" | grep -Eiq -- '(github_pat_|ghp_|glpat-|xox[baprs]-)[A-Za-z0-9_-]{10,}' && report "access token" "$file"
+    printf '%s' "$content" | grep -Eiq -- "(password|passwd|api[_-]?key|client[_-]?secret|access[_-]?token)[[:space:]]*[:=][[:space:]]*[\"'][^\"']{8,}[\"']" && report "credential literal" "$file"
+    printf '%s' "$content" | grep -Eiq -- 'https?://[^/@:[:space:]]+:[^/@[:space:]]+@' && report "credential URL" "$file"
+    printf '%s' "$content" | grep -Eiq -- '(/Users|/home)/[A-Za-z0-9._-]+' && report "absolute home path" "$file"
+
+    while IFS= read -r email; do
+        case "${email##*@}" in
+            example.com|example.org|example.net|localhost|users.noreply.github.com) ;;
+            *) report "email address" "$file" ;;
+        esac
+    done < <(printf '%s' "$content" | grep -Eio -- '[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}' | sort -u || true)
+
+    if [ -f "$custom_patterns" ]; then
+        while IFS= read -r pattern; do
+            case "$pattern" in ""|\#*) continue ;; esac
+            printf '%s' "$content" | grep -Eiq -- "$pattern" && report "personal pattern" "$file"
+        done < "$custom_patterns"
+    fi
+}
+
+while IFS= read -r -d '' file; do
+    case "${file##*/}" in
+        .env|id_rsa|id_dsa|id_ecdsa|id_ed25519|*.pem|*.p12|*.pfx|*.key)
+            report "sensitive filename" "$file"
+            ;;
+    esac
+
+    content="$(git show ":$file" 2>/dev/null || true)"
+    [ -n "$content" ] || continue
+    printf '%s' "$content" | LC_ALL=C grep -Iq . || continue
+    check_content "$file" "$content"
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+if [ "$failed" = true ]; then
+    echo "Commit rejected. Remove the data or unstage the file." >&2
+    echo "Add repository-specific identity regexes to .git/info/personal-patterns." >&2
+    exit 1
+fi
