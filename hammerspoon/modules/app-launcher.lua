@@ -52,6 +52,7 @@ function M.init()
 
     hs.hotkey.bind({"alt", "shift"}, "t", open_app("iTerm"))
     hs.hotkey.bind({"alt", "shift"}, "c", open_app("Visual Studio Code"))
+    hs.hotkey.bind({"alt", "shift"}, "g", open_app("ChatGPT"))
     hs.hotkey.bind({"alt", "shift"}, "m", open_app("Mail"))
     hs.hotkey.bind({"alt", "shift"}, "n", open_app("Notion"))
 
