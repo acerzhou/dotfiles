@@ -90,6 +90,7 @@ class ManagementTests(unittest.TestCase):
                                  "--dry-run")
         self.assertIn("Install profile: personal", output)
         self.assertIn('brew "zsh"', output)
+        self.assertIn('brew "ollama"', output)
         self.assertIn('cask "chatgpt"', output)
         self.assertIn('cask "codex"', output)
 

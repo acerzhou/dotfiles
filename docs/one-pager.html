@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A one-page summary and current snapshot of the dotfiles repository.">
+  <title>Dotfiles · Repository One Pager</title>
+  <style>
+    :root {
+      --ink: #18211d;
+      --muted: #66736d;
+      --paper: #f5f2e9;
+      --card: #fffdf7;
+      --line: #d9d8ce;
+      --green: #0f7358;
+      --green-soft: #dff2e8;
+      --orange: #e46c35;
+      --navy: #172d38;
+      --blue: #d9edf0;
+      --shadow: 0 18px 55px rgba(23, 45, 56, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 2%, rgba(228, 108, 53, 0.12), transparent 25rem),
+        linear-gradient(180deg, #fbfaf5 0, var(--paper) 36rem);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+    .page { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 56px; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(32px, 6vw, 72px);
+      color: #f8fbf8;
+      background: var(--navy);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      position: absolute;
+      right: -90px;
+      bottom: -145px;
+      width: 370px;
+      height: 370px;
+      content: "";
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 50%;
+      box-shadow: 0 0 0 42px rgba(255, 255, 255, 0.035),
+                  0 0 0 84px rgba(255, 255, 255, 0.025);
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: #9fd7c6;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3rem, 8vw, 6.7rem);
+      font-weight: 500;
+      letter-spacing: -0.055em;
+      line-height: 0.88;
+    }
+
+    .hero-copy {
+      max-width: 670px;
+      margin: 28px 0 0;
+      color: #d9e3df;
+      font-size: clamp(1rem, 2vw, 1.22rem);
+    }
+
+    .snapshot {
+      display: flex;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      gap: 12px 22px;
+      align-items: center;
+      margin-top: 34px;
+      padding-top: 20px;
+      color: #cbd8d3;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.78rem;
+    }
+
+    .status { display: inline-flex; gap: 8px; align-items: center; color: #bcebd8; font-family: Inter, sans-serif; font-weight: 750; }
+    .status::before {
+      width: 9px;
+      height: 9px;
+      content: "";
+      background: #5fe0a8;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(95, 224, 168, 0.12);
+    }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 18px 0 42px; }
+    .metric, .card { background: rgba(255, 253, 247, 0.92); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .metric { padding: 22px; border-radius: 18px; }
+    .metric strong { display: block; color: var(--navy); font-family: Georgia, serif; font-size: 2.35rem; font-weight: 500; line-height: 1; }
+    .metric span { display: block; margin-top: 9px; color: var(--muted); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .section { margin-top: 42px; }
+    .section-heading { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; align-items: end; margin-bottom: 18px; }
+    h2 { margin: 0; color: var(--navy); font-family: Georgia, serif; font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 500; letter-spacing: -0.035em; line-height: 1; }
+    .section-heading p { max-width: 680px; margin: 0; color: var(--muted); }
+    .card { padding: clamp(22px, 4vw, 36px); border-radius: 22px; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1.6fr auto 1fr; gap: 14px; align-items: stretch; }
+    .flow-node { padding: 22px; background: #f8f8f2; border: 1px solid var(--line); border-radius: 14px; }
+    .flow-node.accent { background: var(--blue); border-color: #bdd9db; }
+    .flow-node strong { display: block; color: var(--navy); }
+    .flow-node small { display: block; margin-top: 6px; color: var(--muted); }
+    .arrow { align-self: center; color: var(--orange); font-size: 1.7rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .domain-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+    .domain { padding: 15px 16px; background: #f8f8f2; border-left: 3px solid var(--green); border-radius: 4px 10px 10px 4px; }
+    .domain strong { display: block; font-size: 0.92rem; }
+    .domain span { color: var(--muted); font-size: 0.82rem; }
+    h3 { margin: 0 0 12px; color: var(--navy); font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    ul { margin: 0; padding-left: 1.2rem; }
+    li + li { margin-top: 9px; }
+    li::marker { color: var(--orange); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 13px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: var(--muted); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    tr:last-child td { border-bottom: 0; }
+    code { padding: 0.18em 0.42em; color: #104d42; background: var(--green-soft); border-radius: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.84em; }
+    .signal { display: flex; gap: 14px; align-items: flex-start; padding: 18px; background: var(--green-soft); border-radius: 14px; }
+    .signal-mark { display: grid; flex: 0 0 32px; width: 32px; height: 32px; place-items: center; color: white; background: var(--green); border-radius: 50%; font-weight: 900; }
+    .signal p { margin: 3px 0 0; color: #335d51; font-size: 0.91rem; }
+    .note { margin-top: 14px; padding: 14px 16px; color: #704329; background: #fae5d8; border-radius: 12px; font-size: 0.9rem; }
+    footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 44px; padding-top: 20px; color: var(--muted); border-top: 1px solid var(--line); font-size: 0.78rem; }
+    footer a { text-underline-offset: 3px; }
+
+    @media (max-width: 780px) {
+      .metrics, .grid, .section-heading { grid-template-columns: 1fr 1fr; }
+      .section-heading p { grid-column: 1 / -1; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-self: center; line-height: 0.6; }
+    }
+
+    @media (max-width: 540px) {
+      .page { width: min(100% - 24px, 1120px); padding-top: 12px; }
+      .hero { border-radius: 18px; }
+      .metrics, .grid, .section-heading, .domain-list { grid-template-columns: 1fr; }
+      .metric { padding: 18px; }
+      footer { flex-direction: column; }
+    }
+
+    @media print {
+      body { background: white; }
+      .page { width: 100%; padding: 0; }
+      .hero, .card, .metric { box-shadow: none; break-inside: avoid; }
+      .section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Repository one pager · 03 October 2026</p>
+      <h1>Small surface.<br>Reliable setup.</h1>
+      <p class="hero-copy">A focused macOS development environment with one default configuration, additive personal packages, and a Makefile as the only supported interface.</p>
+      <div class="snapshot" aria-label="Repository snapshot">
+        <span class="status">Default install update prepared</span>
+        <span>master @ 29728ec</span>
+        <span>latest: Add chatgpt config</span>
+      </div>
+    </header>
+
+    <section class="metrics" aria-label="Repository metrics">
+      <div class="metric"><strong>11</strong><span>public Make targets</span></div>
+      <div class="metric"><strong>24</strong><span>default packages</span></div>
+      <div class="metric"><strong>2</strong><span>personal additions</span></div>
+      <div class="metric"><strong>19</strong><span>regression tests</span></div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>How it fits</h2>
+        <p>Public commands stay stable while focused domain scripts own implementation and tool directories remain authoritative.</p>
+      </div>
+      <div class="card flow" aria-label="Repository architecture flow">
+        <div class="flow-node accent"><strong>Makefile</strong><small>Supported user interface</small></div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>Domain operations</strong><small>packages · macOS · dotfiles · Git · SSH</small></div>
+        <span class="arrow" aria-hidden="true">→</span>
+        <div class="flow-node"><strong>Managed environment</strong><small>links · packages · backups · identity</small></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Ownership map</h2>
+        <p>Each concern has one home. Machine-specific values remain outside version control.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>Configuration domains</h3>
+          <div class="domain-list">
+            <div class="domain"><strong>zsh/</strong><span>shell startup &amp; tools</span></div>
+            <div class="domain"><strong>git/</strong><span>global config &amp; privacy hook</span></div>
+            <div class="domain"><strong>vim/ + tmux/</strong><span>terminal editing workflow</span></div>
+            <div class="domain"><strong>hammerspoon/</strong><span>macOS automation</span></div>
+            <div class="domain"><strong>brew/</strong><span>canonical package manifests</span></div>
+            <div class="domain"><strong>scripts/</strong><span>focused operations</span></div>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Operating model</h3>
+          <ul>
+            <li><code>brew/Brewfile</code> is the default package baseline.</li>
+            <li>Ollama provides local language-model serving from the default toolset.</li>
+            <li><code>PROFILE=personal</code> adds packages; it never changes configuration.</li>
+            <li>Configuration is linked into the home directory with backup and restore support.</li>
+            <li>Hammerspoon remains an independent install path with domain-owned documentation.</li>
+            <li>Git identity and shell overrides live only in untracked local files.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Command surface</h2>
+        <p>Everything supported for users is exposed through these Make targets.</p>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Intent</th><th>Command</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>Preview</td><td><code>make install-plan PROFILE=personal</code></td><td>Shows default and additive manifests.</td></tr>
+            <tr><td>Install</td><td><code>make install</code></td><td>Installs the canonical package set.</td></tr>
+            <tr><td>Configure</td><td><code>make config</code></td><td>Links dotfiles and offers local identity/SSH setup.</td></tr>
+            <tr><td>Automate</td><td><code>make hammerspoon</code></td><td>Installs and links macOS automation separately.</td></tr>
+            <tr><td>Inspect</td><td><code>make check</code></td><td>Reports all managed-link states.</td></tr>
+            <tr><td>Recover</td><td><code>make backup</code> / <code>make restore BACKUP=&lt;name&gt;</code></td><td>Snapshots and restores managed configuration.</td></tr>
+            <tr><td>Verify</td><td><code>make test</code></td><td>Runs isolated regression coverage.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Current situation</h2>
+        <p>The repository has converged on a deliberately narrow architecture with privacy and recovery built in.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>Health signal</h3>
+          <div class="signal">
+            <span class="signal-mark" aria-hidden="true">✓</span>
+            <div>
+              <strong>Regression suite passing</strong>
+              <p>19 checks run on this snapshot: 18 pass and one environment-dependent Hammerspoon case is skipped when the app is already installed.</p>
+            </div>
+          </div>
+          <div class="note">Target platform: macOS. Configuration and Hammerspoon targets can inspect or modify the real machine and are not used as test commands.</div>
+        </article>
+        <article class="card">
+          <h3>Recent direction</h3>
+          <ul>
+            <li>Simplified to one default configuration path.</li>
+            <li>Separated additive personal packages from the canonical baseline.</li>
+            <li>Strengthened backup, partial restore, and idempotent link handling.</li>
+            <li>Added staged secret and personal-information protection.</li>
+            <li>Expanded the personal application manifest with ChatGPT and Codex.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      <span>Generated from tracked repository evidence · 03 October 2026</span>
+      <span><a href="../README.md">Overview</a> · <a href="setup.md">Setup guide</a> · <a href="../CHANGELOG.md">History</a></span>
+    </footer>
+  </main>
+</body>
+</html>

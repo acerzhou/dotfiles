@@ -57,6 +57,7 @@ Run `make help` for all supported commands.
 
 ## Documentation
 
+- [Repository one pager](docs/one-pager.html)
 - [Setup, customization, and recovery](docs/setup.md)
 - [Hammerspoon shortcuts](hammerspoon/README.md)
 - [ZSH configuration](zsh/README.md)

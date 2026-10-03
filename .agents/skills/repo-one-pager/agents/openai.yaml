@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repository One Pager"
+  short_description: "Create or refresh the repository status page"
+  default_prompt: "Use $repo-one-pager to refresh this repository's HTML one-pager."
