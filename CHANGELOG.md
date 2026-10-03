@@ -21,7 +21,7 @@
 ### Reliability
 
 - Made symlink management idempotent and compatible with macOS Bash 3.2.
-- Added unique backups, partial restore support, and retention of the newest five backups.
+- Added unique backups and partial restore support.
 - Kept Hammerspoon installation and backup independent from general dotfile linking.
 - Selected login shells only from executable entries in `/etc/shells`.
 - Guarded optional shell and Vim integrations.

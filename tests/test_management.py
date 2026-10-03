@@ -81,28 +81,12 @@ class ManagementTests(unittest.TestCase):
         self.run_script("scripts/dotfiles/backups.sh", "restore", expected=1)
         self.run_script("scripts/dotfiles/backups.sh", "restore", "../outside", expected=1)
 
-    def test_cleanup_keeps_newest_five_and_unrelated_directories(self):
-        base = self.home / ".dotfiles-backups"
-        for day in range(1, 8):
-            (base / f"202601{day:02d}-000000").mkdir(parents=True)
-        (base / "unrelated").mkdir()
-        self.run_script("scripts/dotfiles/backups.sh", "cleanup")
-        self.assertEqual([p.name for p in self.backups()],
-                         [f"202601{day:02d}-000000" for day in range(3, 8)] + ["unrelated"])
-
     def test_empty_backup_operations(self):
         self.run_script("scripts/dotfiles/backups.sh", "list")
         self.run_script("scripts/dotfiles/backups.sh", "backup")
-        self.run_script("scripts/dotfiles/backups.sh", "cleanup")
 
-    def test_profiles_are_listed_and_can_be_previewed(self):
-        output = self.run_script("scripts/packages/install.sh", "profiles")
-        for profile in ("default", "personal"):
-            self.assertIn(profile, output)
-        self.assertNotIn("work", output)
-        self.assertNotIn("general", output)
-
-        output = self.run_script("scripts/packages/install.sh", "install", "--profile", "personal",
+    def test_personal_packages_can_be_previewed(self):
+        output = self.run_script("scripts/packages/install.sh", "--profile", "personal",
                                  "--dry-run")
         self.assertIn("Install profile: personal", output)
         self.assertIn('brew "zsh"', output)
@@ -141,7 +125,7 @@ class ManagementTests(unittest.TestCase):
 
     def test_unknown_and_unsafe_profiles_fail_before_installing(self):
         for profile in ("missing", "../default"):
-            output = self.run_script("scripts/packages/install.sh", "install", "--profile", profile,
+            output = self.run_script("scripts/packages/install.sh", "--profile", profile,
                                      expected=1)
             self.assertIn("profile", output.lower())
 
@@ -154,7 +138,7 @@ class ManagementTests(unittest.TestCase):
         brew.chmod(0o755)
         self.env.update(OSTYPE="darwin", PATH=f"{bins}:/usr/bin:/bin",
                         BREW_LOG=str(log))
-        self.run_script("scripts/packages/install.sh", "install", "--profile", "personal")
+        self.run_script("scripts/packages/install.sh", "--profile", "personal")
         calls = log.read_text()
         self.assertIn("bundle --file=" + str(REPO / "brew/Brewfile"), calls)
         self.assertIn("bundle --file=" + str(REPO / "brew/profiles/personal.Brewfile"), calls)
@@ -168,13 +152,13 @@ class ManagementTests(unittest.TestCase):
         brew.chmod(0o755)
         self.env.update(OSTYPE="darwin", PATH=f"{bins}:/usr/bin:/bin",
                         BREW_LOG=str(log))
-        self.run_script("scripts/packages/install.sh", "install")
+        self.run_script("scripts/packages/install.sh")
         self.assertEqual(log.read_text().strip(),
                          "bundle --file=" + str(REPO / "brew/Brewfile"))
 
     def test_installer_rejects_unsupported_platforms(self):
         self.env["OSTYPE"] = "freebsd"
-        output = self.run_script("scripts/packages/install.sh", "install", "--dry-run", expected=1)
+        output = self.run_script("scripts/packages/install.sh", "--dry-run", expected=1)
         self.assertIn("requires macOS", output)
 
     def test_config_does_not_install_packages(self):

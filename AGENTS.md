@@ -21,11 +21,17 @@ Follow this contract for every change in this repository.
 ## Design
 
 - Prefer deletion and consolidation over wrappers, aliases, compatibility paths, and parallel workflows.
-- Keep the Makefile as the single public interface. Domain scripts own implementation.
 - Keep command parsing separate from the operation it invokes.
 - Prefer short functions, explicit inputs, early returns, and direct control flow.
 - Create shared helpers only when multiple active callers need identical behavior.
 - Use existing Make targets and scripts instead of recreating their behavior.
+
+## Public interface
+
+- The Makefile is the only supported user interface; domain scripts are implementation details.
+- Keep only essential targets: `install`, `install-plan`, `config`, `git-identity`, `hammerspoon`, `check`, `uninstall`, `backup`, `list-backups`, `restore`, and `test`.
+- Do not add convenience targets that duplicate Git commands, another target, or a domain script without a recurring user need.
+- When removing a target, remove its unused implementation, tests, and documentation references in the same change.
 
 ## Architecture invariants
 
@@ -36,12 +42,22 @@ Follow this contract for every change in this repository.
 - `PROFILE=personal` affects package installation and preview only.
 - Personal and machine-specific configuration belongs in documented files under the user's home directory, not in tracked profiles.
 
+## Privacy and Git identity
+
+- Never add a tracked `[user]` section, `user.name`, or `user.email` to `git/.gitconfig`.
+- Keep the tracked include of `~/.gitconfig.local`; `make git-identity` is the supported way to create or update that file.
+- Git identity setup must write only to `~/.gitconfig.local`, preserve unrelated settings, and restrict the file to the user.
+- Keep `git/hooks/pre-commit` enabled through the tracked `core.hooksPath` setting.
+- Do not weaken or bypass staged checks for secrets, credentials, real email addresses, absolute home paths, or sensitive filenames.
+- Store identity-specific regular expressions only in untracked `.git/info/personal-patterns` files.
+- Treat hooks as local protection, not a replacement for remote secret scanning.
+
 ## Directory ownership
 
 - `Makefile`: public task interface.
 - `scripts/packages/`: package validation, preview, and installation.
 - `scripts/macos/`: interactive macOS configuration workflow.
-- `scripts/dotfiles/`: link and backup management.
+- `scripts/dotfiles/`: managed links and backup/restore operations.
 - `scripts/ssh/`: SSH key operations.
 - `scripts/git/`: machine-local Git identity setup.
 - `scripts/utilities/`: independent helper tools.
@@ -70,7 +86,6 @@ Do not place domain implementation at repository root or move domain-specific co
 5. Update tests and the owning documentation when behavior changes.
 6. Check for stale paths, duplicate logic, and broken links before finishing.
 7. Scan tracked content for personal identifiers before publishing or handing off identity-related changes.
-8. Keep privacy checks generic; store identity-specific patterns only in untracked `.git/info/personal-patterns` files.
 
 ## Verification
 
@@ -78,6 +93,6 @@ Do not place domain implementation at repository root or move domain-specific co
 - Use `make install-plan PROFILE=personal` for package-flow changes.
 - Use `bash -n` and ShellCheck for shell changes when available.
 - Use `git diff --check` for every patch.
-- Do not run `make install`, `make config`, `make hammerspoon`, `make update`, or `make check` merely for verification; they inspect or modify the real machine.
+- Do not run `make install`, `make config`, `make hammerspoon`, or `make check` merely for verification; they inspect or modify the real machine.
 
 Shell scripts target macOS, use Bash, and should enable `set -euo pipefail` unless a documented reason requires otherwise.

@@ -14,10 +14,9 @@ make hammerspoon
 
 `make install` installs the canonical `brew/Brewfile`. `PROFILE=personal` installs the default manifest first and then the personal additions. It does not link configuration files.
 
-Preview or list profiles before installing:
+Preview personal additions before installing:
 
 ```bash
-make profiles
 make install-plan PROFILE=personal
 ```
 
@@ -66,18 +65,14 @@ For Hammerspoon, open the app, enable Accessibility access when prompted, and re
 | --- | --- |
 | `make install [PROFILE=<name>]` | Install default packages and optional additions |
 | `make install-plan [PROFILE=<name>]` | Preview packages without installing |
-| `make profiles` | List available profiles |
 | `make config` | Apply the default configuration |
 | `make git-identity` | Configure machine-local Git name and email |
-| `make install-links` | Apply default symlinks only |
 | `make hammerspoon` | Install and configure Hammerspoon |
 | `make check` | Report all managed link statuses |
 | `make backup` | Snapshot current dotfiles |
 | `make list-backups` | List available backups |
 | `make restore BACKUP=<name>` | Restore a backup after confirmation |
 | `make uninstall` | Remove links pointing to this repository |
-| `make update` | Pull changes and reapply default configuration |
-| `make clean` | Keep the five newest backups |
 | `make test` | Run isolated regression tests |
 
 The Makefile is the supported interface. Package profiles apply only to `make install` and `make install-plan`.
@@ -99,8 +94,8 @@ Use the exact name shown by `make list-backups`. Backups from older installers u
 # Inspect every managed link; missing/incorrect links produce a nonzero exit
 make check
 
-# Reapply default links and Hammerspoon independently
-make install-links
+# Reapply default configuration and Hammerspoon independently
+make config
 make hammerspoon
 
 # Check shell syntax

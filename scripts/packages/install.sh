@@ -9,8 +9,7 @@ PROFILE_BREWFILE=""
 DRY_RUN=false
 
 usage() {
-    echo "Usage: $0 install [--profile NAME] [--dry-run]"
-    echo "       $0 profiles"
+    echo "Usage: $0 [--profile NAME] [--dry-run]"
 }
 
 require_macos() {
@@ -33,23 +32,10 @@ validate_manifests() {
     if [ "$PROFILE_NAME" != default ]; then
         PROFILE_BREWFILE="$DOTFILES_DIR/brew/profiles/$PROFILE_NAME.Brewfile"
         if [ ! -f "$PROFILE_BREWFILE" ]; then
-            echo "Unknown or incomplete profile: $PROFILE_NAME. Run make profiles." >&2
+            echo "Unknown package profile: $PROFILE_NAME" >&2
             return 1
         fi
     fi
-}
-
-list_profiles() {
-    local directory name
-    echo "Available profiles (default: default):"
-    echo "  default"
-    for directory in "$DOTFILES_DIR"/brew/profiles/*.Brewfile; do
-        if [ -f "$directory" ]; then
-            name="${directory##*/}"
-            printf '  %s\n' "${name%.Brewfile}"
-        fi
-    done
-    return 0
 }
 
 ensure_homebrew() {
@@ -92,21 +78,6 @@ install_packages() {
     fi
     echo "Package installation complete"
 }
-
-command="${1:-install}"
-if [ "$#" -gt 0 ]; then
-    shift
-fi
-
-if [ "$command" = profiles ]; then
-    [ "$#" -eq 0 ] || { usage >&2; exit 1; }
-    list_profiles
-    exit 0
-fi
-if [ "$command" != install ]; then
-    usage >&2
-    exit 1
-fi
 
 while [ "$#" -gt 0 ]; do
     case "$1" in

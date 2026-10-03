@@ -97,24 +97,9 @@ restore_backup() {
     printf 'Restored %s paths. Restart your terminal to load the configuration.\n' "$count"
 }
 
-cleanup_backups() {
-    local keep=5 remove_count i
-    collect_backups
-    remove_count=$((${#BACKUPS[@]} - keep))
-    if [ "$remove_count" -le 0 ]; then
-        printf 'Keeping all %s backups\n' "${#BACKUPS[@]}"
-        return 0
-    fi
-    for ((i=0; i<remove_count; i++)); do
-        rm -rf "${BACKUPS[$i]}"
-        printf 'Deleted old backup: %s\n' "${BACKUPS[$i]##*/}"
-    done
-}
-
 case "${1:-list}" in
     backup) create_backup ;;
     restore) restore_backup "${2:-}" ;;
     list) list_backups ;;
-    cleanup) cleanup_backups ;;
-    *) echo "Usage: $0 [backup|restore <backup-name>|list|cleanup]" >&2; exit 1 ;;
+    *) echo "Usage: $0 [backup|restore <backup-name>|list]" >&2; exit 1 ;;
 esac
