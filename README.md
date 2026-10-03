@@ -48,6 +48,7 @@ dotfiles/
 | `make install PROFILE=personal` | Install default and personal packages |
 | `make install-plan PROFILE=personal` | Preview package manifests |
 | `make config` | Link and configure default dotfiles |
+| `make git-identity` | Set machine-local Git name and email |
 | `make hammerspoon` | Install and link Hammerspoon configuration |
 | `make check` | Check managed links |
 | `make test` | Run isolated regression tests |
@@ -61,6 +62,6 @@ Run `make help` for all supported commands.
 - [ZSH configuration](zsh/README.md)
 - [Project history](CHANGELOG.md)
 
-Machine-local Git identity belongs in `~/.gitconfig.local`; shell customizations belong in `~/.zshrc.local`. Neither file is tracked.
+Machine-local Git identity belongs in `~/.gitconfig.local`; use `make git-identity` to configure it. Shell customizations belong in `~/.zshrc.local`. Neither file is tracked.
 
 The managed pre-commit hook rejects common secrets and personal information. Add repository-specific identity patterns to `.git/info/personal-patterns`.

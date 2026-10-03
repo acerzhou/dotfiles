@@ -1,4 +1,4 @@
-.PHONY: help install install-plan profiles config hammerspoon install-links uninstall backup restore list-backups check update clean test
+.PHONY: help install install-plan profiles config git-identity hammerspoon install-links uninstall backup restore list-backups check update clean test
 
 PROFILE ?= default
 
@@ -11,6 +11,7 @@ help:
 	@echo "  make install-plan PROFILE=<name> - Preview packages without installing"
 	@echo "  make profiles      - List available profiles"
 	@echo "  make config        - Configure the default dotfiles"
+	@echo "  make git-identity  - Configure machine-local Git identity"
 	@echo "  make hammerspoon   - Install and configure Hammerspoon (macOS)"
 	@echo "  make install-links - Link default dotfiles without shell setup"
 	@echo "  make uninstall     - Remove symlinks"
@@ -37,6 +38,9 @@ profiles:
 # Configure default dotfiles
 config:
 	@bash ./scripts/macos/configure.sh
+
+git-identity:
+	@bash ./scripts/git/configure-identity.sh
 
 # Install and configure Hammerspoon independently
 hammerspoon:

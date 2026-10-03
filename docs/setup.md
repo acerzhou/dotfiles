@@ -27,15 +27,15 @@ Default packages are in `brew/Brewfile`; optional additions are in `brew/profile
 
 If Homebrew's ZSH appears first in `PATH`, configuration still uses a registered login shell from `/etc/shells` (normally `/bin/zsh` on macOS). If ZSH is already your default, it leaves the setting unchanged.
 
-Set your Git identity in a local file to avoid changing tracked dotfiles:
+Set or update Git identity interactively:
 
 ```bash
-git config --file ~/.gitconfig.local user.name "Your Name"
-git config --file ~/.gitconfig.local user.email "your.email@example.com"
-exec zsh
+make git-identity
 ```
 
-The default Git configuration includes `~/.gitconfig.local` automatically. Machine-local shell settings belong in `~/.zshrc.local`, loaded by the interactive shell.
+The command writes only to `~/.gitconfig.local`, which the default Git configuration includes last. `make config` also offers to run this step. Do not use `git config --global user.name` or `user.email`, because the global config is linked to this repository.
+
+Machine-local shell settings belong in `~/.zshrc.local`, loaded by the interactive shell.
 
 ### Commit privacy checks
 
@@ -68,6 +68,7 @@ For Hammerspoon, open the app, enable Accessibility access when prompted, and re
 | `make install-plan [PROFILE=<name>]` | Preview packages without installing |
 | `make profiles` | List available profiles |
 | `make config` | Apply the default configuration |
+| `make git-identity` | Configure machine-local Git name and email |
 | `make install-links` | Apply default symlinks only |
 | `make hammerspoon` | Install and configure Hammerspoon |
 | `make check` | Report all managed link statuses |

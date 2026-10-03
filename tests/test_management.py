@@ -178,9 +178,33 @@ class ManagementTests(unittest.TestCase):
         self.assertIn("requires macOS", output)
 
     def test_config_does_not_install_packages(self):
-        self.run_script("scripts/macos/configure.sh", stdin="y\nn\n")
+        self.run_script("scripts/macos/configure.sh", stdin="y\nn\nn\n")
         self.assertTrue((self.home / ".zshrc").is_symlink())
         self.assertFalse((self.home / ".hammerspoon").exists())
+
+    def test_git_identity_is_stored_only_in_local_config(self):
+        self.run_script("scripts/git/configure-identity.sh",
+                        stdin="Example User\nuser@example.com\n")
+        identity = self.home / ".gitconfig.local"
+        self.assertEqual(identity.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(subprocess.run(
+            ["git", "config", "--file", str(identity), "--get", "user.name"],
+            env=self.env, text=True, capture_output=True,
+        ).stdout.strip(), "Example User")
+        self.assertEqual(subprocess.run(
+            ["git", "config", "--file", str(identity), "--get", "user.email"],
+            env=self.env, text=True, capture_output=True,
+        ).stdout.strip(), "user@example.com")
+
+        self.run_script("scripts/git/configure-identity.sh", stdin="\n\n")
+        tracked_identity = subprocess.run(
+            ["git", "config", "--no-includes", "--file",
+             str(REPO / "git/.gitconfig"),
+             "--get-regexp", r"^user\."],
+            env=self.env, text=True, capture_output=True,
+        )
+        self.assertEqual(tracked_identity.returncode, 1,
+                         tracked_identity.stdout + tracked_identity.stderr)
 
     @unittest.skipUnless(
         Path("/bin/zsh").is_file()
@@ -204,7 +228,7 @@ class ManagementTests(unittest.TestCase):
             PATH=f"{bins}:/usr/bin:/bin",
             SHELL_LOG=str(log),
         )
-        output = self.run_script("scripts/macos/configure.sh", stdin="y\nn\n")
+        output = self.run_script("scripts/macos/configure.sh", stdin="y\nn\nn\n")
         self.assertIn("using /bin/zsh", output)
         self.assertIn("-s /bin/zsh", log.read_text())
 

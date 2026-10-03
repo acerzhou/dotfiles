@@ -66,6 +66,16 @@ offer_ssh_key() {
     fi
 }
 
+offer_git_identity() {
+    read -r -p "Configure machine-local Git identity now? (y/n) " -n 1
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        bash "$DOTFILES_DIR/scripts/git/configure-identity.sh"
+    else
+        echo "Skipping Git identity setup"
+    fi
+}
+
 show_iterm_import_help() {
     local config="$DOTFILES_DIR/iterm/iterm2-config.json"
     [ -f "$config" ] || return 0
@@ -83,6 +93,7 @@ fi
 
 bash "$DOTFILES_DIR/scripts/dotfiles/links.sh" install
 configure_login_shell
+offer_git_identity
 offer_ssh_key
 show_iterm_import_help
 echo "Dotfiles configuration complete"

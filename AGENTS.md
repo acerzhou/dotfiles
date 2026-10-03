@@ -43,6 +43,7 @@ Follow this contract for every change in this repository.
 - `scripts/macos/`: interactive macOS configuration workflow.
 - `scripts/dotfiles/`: link and backup management.
 - `scripts/ssh/`: SSH key operations.
+- `scripts/git/`: machine-local Git identity setup.
 - `scripts/utilities/`: independent helper tools.
 - `brew/`: default and additive package manifests.
 - `hammerspoon/`, `zsh/`, `git/`, `tmux/`, `vim/`, `iterm/`: tool-owned configuration.
