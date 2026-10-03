@@ -15,7 +15,7 @@ class ManagementTests(unittest.TestCase):
         self.home = Path(self.temp.name) / "home with spaces"
         self.home.mkdir()
         self.env = dict(os.environ, HOME=str(self.home), PATH="/usr/bin:/bin",
-                        OSTYPE="linux-gnu", SHELL="/bin/zsh")
+                        OSTYPE="darwin", SHELL="/bin/zsh")
 
     def run_script(self, script, *args, stdin="", expected=0):
         result = subprocess.run(["/bin/bash", str(REPO / script), *args],
@@ -95,26 +95,108 @@ class ManagementTests(unittest.TestCase):
         self.run_script("backup.sh", "backup")
         self.run_script("backup.sh", "cleanup")
 
-    def test_linux_install_only_calls_package_manager(self):
+    def test_profiles_are_listed_and_can_be_previewed(self):
+        output = self.run_script("install.sh", "profiles")
+        for profile in ("default", "personal"):
+            self.assertIn(profile, output)
+        self.assertNotIn("work", output)
+        self.assertNotIn("general", output)
+
+        output = self.run_script("install.sh", "install", "--profile", "personal",
+                                 "--dry-run")
+        self.assertIn("Install profile: personal", output)
+        self.assertIn('brew "zsh"', output)
+
+    def test_unknown_and_unsafe_profiles_fail_before_installing(self):
+        for profile in ("missing", "../default"):
+            output = self.run_script("install.sh", "install", "--profile", profile,
+                                     expected=1)
+            self.assertIn("profile", output.lower())
+
+    def test_macos_profile_installs_shared_and_selected_brewfiles(self):
         bins = self.home / "bin"
         bins.mkdir()
-        log = self.home / "packages.log"
-        sudo = bins / "sudo"
-        sudo.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$PACKAGE_LOG"\n')
-        sudo.chmod(0o755)
-        apt = bins / "apt"
-        apt.write_text('#!/bin/sh\nexit 0\n')
-        apt.chmod(0o755)
-        self.env.update(PATH=f"{bins}:/usr/bin:/bin", PACKAGE_LOG=str(log))
-        self.run_script("install.sh", "install")
-        self.assertIn("apt update", log.read_text())
-        self.assertIn("apt install -y zsh vim tmux git", log.read_text())
-        self.assertFalse((self.home / ".zshrc").exists())
+        log = self.home / "brew.log"
+        brew = bins / "brew"
+        brew.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$BREW_LOG"\n')
+        brew.chmod(0o755)
+        self.env.update(OSTYPE="darwin", PATH=f"{bins}:/usr/bin:/bin",
+                        BREW_LOG=str(log))
+        self.run_script("install.sh", "install", "--profile", "personal")
+        calls = log.read_text()
+        self.assertIn("bundle --file=" + str(REPO / "brew/Brewfile.common"), calls)
+        self.assertIn("bundle --file=" + str(REPO / "profiles/personal/Brewfile"), calls)
+        self.assertNotIn("profiles/default/Brewfile", calls)
+
+    def test_installer_rejects_unsupported_platforms(self):
+        self.env["OSTYPE"] = "freebsd"
+        output = self.run_script("install.sh", "install", "--dry-run", expected=1)
+        self.assertIn("requires macOS", output)
 
     def test_config_does_not_install_packages(self):
-        self.run_script("install.sh", "config", stdin="y\nn\n")
+        self.run_script("install.sh", "config", "--profile", "default",
+                        stdin="y\nn\n")
         self.assertTrue((self.home / ".zshrc").is_symlink())
         self.assertFalse((self.home / ".hammerspoon").exists())
+        profile = self.home / ".config/dotfiles/profile"
+        self.assertEqual(profile.resolve(), REPO / "profiles/default")
+
+    def test_profile_can_switch_without_relinking_shared_config(self):
+        self.run_script("install.sh", "switch", "--profile", "personal")
+        profile = self.home / ".config/dotfiles/profile"
+        self.assertEqual(profile.resolve(), REPO / "profiles/personal")
+        self.assertEqual(self.run_script("install.sh", "profile").strip(),
+                         "personal")
+        self.assertFalse((self.home / ".zshrc").exists())
+
+        git_profile = subprocess.run(
+            ["git", "config", "--includes", "-f", str(REPO / "git/.gitconfig"),
+             "--get", "dotfiles.profile"],
+            env=self.env, text=True, capture_output=True,
+        )
+        self.assertEqual(git_profile.returncode, 0, git_profile.stderr)
+        self.assertEqual(git_profile.stdout.strip(), "personal")
+
+        if Path("/bin/zsh").exists():
+            shell_profile = subprocess.run(
+                ["/bin/zsh", "-dfc",
+                 f'source "{REPO}/zsh/.zshrc"; print -r -- "$DOTFILES_PROFILE"'],
+                env=self.env, text=True, capture_output=True,
+            )
+            self.assertEqual(shell_profile.returncode, 0, shell_profile.stderr)
+            self.assertEqual(shell_profile.stdout.strip(), "personal")
+
+        self.run_script("install.sh", "switch", "--profile", "default")
+        self.assertEqual(profile.resolve(), REPO / "profiles/default")
+        self.run_script("install.sh", "switch", "--profile", "../default",
+                        expected=1)
+        self.assertEqual(profile.resolve(), REPO / "profiles/default")
+
+    @unittest.skipUnless(
+        Path("/bin/zsh").is_file()
+        and Path("/etc/shells").is_file()
+        and "/bin/zsh" in Path("/etc/shells").read_text().splitlines(),
+        "A registered /bin/zsh is unavailable",
+    )
+    def test_config_uses_registered_zsh_instead_of_path_precedence(self):
+        bins = self.home / "bin"
+        bins.mkdir()
+        for name in ("zsh", "chsh"):
+            command = bins / name
+            command.write_text(
+                '#!/bin/sh\nprintf "%s %s\\n" "$0" "$*" >> "$SHELL_LOG"\n'
+            )
+            command.chmod(0o755)
+        log = self.home / "shell.log"
+        self.env.update(
+            OSTYPE="darwin",
+            SHELL="/bin/bash",
+            PATH=f"{bins}:/usr/bin:/bin",
+            SHELL_LOG=str(log),
+        )
+        output = self.run_script("install.sh", "config", stdin="y\nn\n")
+        self.assertIn("using /bin/zsh", output)
+        self.assertIn("-s /bin/zsh", log.read_text())
 
     @unittest.skipIf(Path("/Applications/Hammerspoon.app").is_dir(),
                          "System Hammerspoon installation bypasses Homebrew")
@@ -137,7 +219,7 @@ class ManagementTests(unittest.TestCase):
     def test_shell_startup_has_no_conflicting_aliases(self):
         self.run_script("symlink-manager.sh", "install")
         result = subprocess.run(["/bin/zsh", "-dfc",
-                                 'OSTYPE=linux-gnu; source "$HOME/.zprofile"; '
+                                 'OSTYPE=darwin; source "$HOME/.zprofile"; '
                                  'source "$HOME/.zshrc"; whence -w myip serve json fdir'],
                                 env=self.env, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -147,8 +229,11 @@ class ManagementTests(unittest.TestCase):
 
     @unittest.skipUnless(Path("/usr/bin/vim").exists(), "Vim is unavailable")
     def test_vim_starts_without_optional_plugins(self):
+        self.run_script("install.sh", "switch", "--profile", "personal")
         result = subprocess.run(["/usr/bin/vim", "-i", "NONE", "-n", "-es", "-u",
-                                 str(REPO / "vim/.vimrc"), "-c", "qa!"],
+                                 str(REPO / "vim/.vimrc"),
+                                 "-c", "if g:dotfiles_profile !=# 'personal' | cquit | endif",
+                                 "-c", "qa!"],
                                 env=self.env, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertTrue((self.home / ".vim/undodir").is_dir())
@@ -165,7 +250,7 @@ class ManagementTests(unittest.TestCase):
         self.assertEqual((self.backups()[0] / ".hammerspoon/init.lua").read_text(), "original config")
         self.run_script("hammerspoon/install.sh")
         self.assertEqual(len(self.backups()), 1)
-        self.env["OSTYPE"] = "linux-gnu"
+        self.env["OSTYPE"] = "freebsd"
         self.run_script("hammerspoon/install.sh", expected=1)
 
 

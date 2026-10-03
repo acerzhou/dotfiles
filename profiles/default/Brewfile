@@ -1,0 +1,6 @@
+# macOS apps for the default profile. Shared tools: brew/Brewfile.common
+cask "visual-studio-code"
+cask "iterm2"
+cask "docker"
+cask "firefox"
+cask "google-chrome"

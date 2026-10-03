@@ -1,15 +1,14 @@
 # 🔧 dotfiles
 
-> Personal development environment configuration for macOS and Linux (Ubuntu)
+> Personal development environment configuration for macOS
 
 This repository contains my personal dotfiles and automated setup scripts to quickly configure a new machine with my preferred development environment.
 
 ## 💡 Philosophy
 
-1. **Cross-platform**: Works on both macOS and Linux (Ubuntu)
-2. **Keyboard-first**: Minimize mouse usage with efficient keybindings
-3. **Unified shortcuts**: Consistent experience across all environments
-4. **Minimalist approach**: Only include essential and highly useful tools
+1. **Keyboard-first**: Minimize mouse usage with efficient keybindings
+2. **Unified shortcuts**: Keep shortcuts consistent across applications
+3. **Minimalist approach**: Only include essential and highly useful tools
 
 ## 📦 What's Included
 
@@ -17,9 +16,9 @@ This repository contains my personal dotfiles and automated setup scripts to qui
 - **Editor**: Vim configuration with sensible defaults
 - **Terminal**: Tmux configuration for terminal multiplexing
 - **Git**: Global Git config with useful aliases
-- **iTerm2**: Custom iTerm2 configuration (macOS)
-- **Hammerspoon**: Window management and automation (macOS)
-- **Package Management**: Brewfile for macOS dependencies
+- **iTerm2**: Custom iTerm2 configuration
+- **Hammerspoon**: Window management and automation
+- **Package Management**: Shared and profile-specific package manifests
 - **Scripts**: Automated setup and cleanup scripts
 
 ## 🚀 Quick Start
@@ -29,31 +28,34 @@ This repository contains my personal dotfiles and automated setup scripts to qui
 git clone https://github.com/acerzhou/dotfiles.git ~/Repos/dotfiles
 cd ~/Repos/dotfiles
 
-# Install packages
+# Install shared packages and one profile
 make install
 
-# Configure ZSH, Vim, Tmux, Git, SSH, and iTerm2
+# Link the shared configuration and activate the default profile
 make config
 
-# Set up Hammerspoon configuration separately (macOS)
+# Set up Hammerspoon configuration separately
 make hammerspoon
 ```
 
-`make install` installs Homebrew and Brewfile packages on macOS, or installs core command-line tools via apt on Ubuntu. `make config` backs up existing dotfiles, creates general configuration symlinks, sets ZSH as your default shell, and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` to install the app via Homebrew if needed and link its configuration to `~/.hammerspoon`, backing up any existing configuration. Homebrew is required if the app is not already installed.
+`make install` uses the `default` profile unless `PROFILE` is supplied. Every profile combines shared packages with its own applications. `make config PROFILE=<name>` links the shared dotfiles, activates that profile's configuration overlays, sets ZSH as your default shell, and optionally creates an SSH key. `make hammerspoon` runs `hammerspoon/install.sh` to install the app via Homebrew if needed and link its configuration to `~/.hammerspoon`, backing up any existing configuration. Homebrew is required if the app is not already installed.
 
-You can also run `./install.sh install`, `./install.sh config`, or `./install.sh hammerspoon` directly. Running `./install.sh` without arguments installs packages only.
+Use `make profiles` to list profiles, `make install-plan PROFILE=personal` to preview packages, and `make switch PROFILE=personal` to change configuration without reinstalling or relinking anything. `make profile` prints the active profile. Running `./install.sh` without arguments installs the `default` profile.
 
 ## 📁 Structure
 
 ```
 dotfiles/
-├── brew/              # Homebrew bundle file
+├── brew/              # Shared Homebrew packages and compatibility Brewfile
 ├── git/               # Git configuration
 │   ├── .gitconfig
 │   └── .gitignore_global
-├── hammerspoon/       # Hammerspoon automation (macOS)
+├── hammerspoon/       # Hammerspoon automation
 │   └── init.lua
 ├── iterm/             # iTerm2 configuration
+├── profiles/          # Packages and configuration overlays by situation
+│   ├── default/
+│   └── personal/
 ├── script/            # Setup and maintenance scripts
 ├── tmux/              # Tmux configuration
 ├── vim/               # Vim configuration
@@ -69,15 +71,18 @@ dotfiles/
 
 ### GUI Applications
 
-The macOS Brewfile installs the applications below. Hammerspoon uses its own installer. The Ubuntu installer installs command-line tools only.
+The profile Brewfiles install the applications below. Hammerspoon uses its own installer.
 
-| Purpose | macOS application |
+| Profile | macOS applications |
 | --- | --- |
-| Browsers | Firefox, Google Chrome |
-| Terminal | iTerm2 |
-| Editor | Visual Studio Code |
-| Containers | Docker |
-| Automation | Hammerspoon (separate command) |
+| `default` | Visual Studio Code, iTerm2, Docker, Firefox, Google Chrome |
+| `personal` | Visual Studio Code, iTerm2, Firefox |
+
+### Profiles
+
+The root-level ZSH, Git, Tmux, Vim, and Hammerspoon files form the shared base. The selected directory under `profiles/` loads afterward, and untracked machine-local files load last.
+
+Each profile can contain `Brewfile`, `zsh.zsh`, `gitconfig`, `tmux.conf`, `vimrc`, and `hammerspoon/init.lua`. See [`profiles/README.md`](profiles/README.md) for the loading contract. Installing a different profile adds packages without removing previously installed applications.
 
 ### Command Line Tools
 
@@ -112,11 +117,11 @@ Install language runtimes separately; shell integrations load when available.
 
 ### ZSH Configuration
 
-Edit [`zsh/.zshrc`](zsh/.zshrc) for shell settings and [`zsh/.alias`](zsh/.alias) for custom aliases.
+Edit [`zsh/.zshrc`](zsh/.zshrc) for shared shell settings. Put situation-specific aliases and environment variables in `profiles/<name>/zsh.zsh`.
 
 ### Git Configuration
 
-Store your name and email in `~/.gitconfig.local`, which the shared Git configuration includes automatically:
+Store identity shared only by one situation in `profiles/<name>/gitconfig`. Keep secrets and machine-only identity in `~/.gitconfig.local`, which loads last:
 
 ```bash
 git config --file ~/.gitconfig.local user.name "Your Name"
@@ -125,15 +130,15 @@ git config --file ~/.gitconfig.local user.email "your.email@example.com"
 
 ### Vim Configuration
 
-Customize [`vim/.vimrc`](vim/.vimrc) for your preferred Vim settings. Vim starts without optional plugins installed. To enable them, install [vim-plug](https://github.com/junegunn/vim-plug) and run `:PlugInstall` in Vim.
+Customize [`vim/.vimrc`](vim/.vimrc) for shared settings and `profiles/<name>/vimrc` for an overlay. Vim starts without optional plugins installed. To enable them, install [vim-plug](https://github.com/junegunn/vim-plug) and run `:PlugInstall` in Vim.
 
 ### Tmux Configuration
 
-Modify [`tmux/.tmux.conf`](tmux/.tmux.conf) for custom tmux keybindings and behavior.
+Modify [`tmux/.tmux.conf`](tmux/.tmux.conf) for shared behavior and `profiles/<name>/tmux.conf` for profile-specific overrides.
 
-### Hammerspoon Configuration (macOS)
+### Hammerspoon Configuration
 
-Edit [`hammerspoon/init.lua`](hammerspoon/init.lua) to customize window management and automation. See [hammerspoon/README.md](hammerspoon/README.md) for keybindings and features.
+Edit [`hammerspoon/init.lua`](hammerspoon/init.lua) for shared automation and `profiles/<name>/hammerspoon/init.lua` for profile-specific shortcuts. See [hammerspoon/README.md](hammerspoon/README.md) for keybindings and features.
 
 ## 🔄 Updating
 
@@ -143,8 +148,8 @@ To update your dotfiles:
 cd ~/Repos/dotfiles
 git pull origin main
 
-# Reapply general configuration if needed
-make config
+# Reapply configuration using the desired profile
+make config PROFILE=personal
 
 # Reapply Hammerspoon configuration independently
 make hammerspoon
@@ -171,7 +176,7 @@ make test
 make check
 ```
 
-Tests use temporary home directories. `make check` reports every general dotfile link and exits with a nonzero status if any link is missing or incorrect. Hammerspoon remains independent from these commands.
+Tests use temporary home directories. `make check` reports every shared dotfile link and exits with a nonzero status if any link is missing or incorrect. Hammerspoon remains independent from these commands.
 
 ## 🔗 Useful Resources
 

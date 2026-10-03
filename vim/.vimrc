@@ -292,3 +292,11 @@ nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 endif
+
+" Situation-specific and machine-local overrides load last.
+if filereadable(expand("~/.config/dotfiles/profile/vimrc"))
+  execute "source " . fnameescape(expand("~/.config/dotfiles/profile/vimrc"))
+endif
+if filereadable(expand("~/.vimrc.local"))
+  execute "source " . fnameescape(expand("~/.vimrc.local"))
+endif
