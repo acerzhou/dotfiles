@@ -90,6 +90,8 @@ class ManagementTests(unittest.TestCase):
                                  "--dry-run")
         self.assertIn("Install profile: personal", output)
         self.assertIn('brew "zsh"', output)
+        self.assertIn('cask "chatgpt"', output)
+        self.assertIn('cask "codex"', output)
 
     def test_pre_commit_hook_blocks_private_data(self):
         repository = self.home / "repository"
@@ -122,6 +124,15 @@ class ManagementTests(unittest.TestCase):
         result = run_hook("PrivateHandle\n")
         self.assertEqual(result.returncode, 1)
         self.assertIn("personal pattern", result.stderr)
+
+        subprocess.run(
+            ["git", "-c", "user.name=Test User", "-c",
+             "user.email=test@example.com", "commit", "--no-verify", "-qm",
+             "baseline"],
+            cwd=repository, env=self.env, check=True,
+        )
+        result = run_hook("PrivateHandle\nsafe change\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_unknown_and_unsafe_profiles_fail_before_installing(self):
         for profile in ("missing", "../default"):

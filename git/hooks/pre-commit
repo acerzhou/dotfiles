@@ -34,6 +34,8 @@ check_content() {
             printf '%s' "$content" | grep -Eiq -- "$pattern" && report "personal pattern" "$file"
         done < "$custom_patterns"
     fi
+
+    return 0
 }
 
 while IFS= read -r -d '' file; do
@@ -43,7 +45,8 @@ while IFS= read -r -d '' file; do
             ;;
     esac
 
-    content="$(git show ":$file" 2>/dev/null || true)"
+    content="$(git diff --cached --no-color --no-ext-diff --unified=0 -- "$file" \
+        | sed -n '/^+++ /!s/^+//p')"
     [ -n "$content" ] || continue
     printf '%s' "$content" | LC_ALL=C grep -Iq . || continue
     check_content "$file" "$content"
